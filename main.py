@@ -832,20 +832,20 @@ def tu(m):
     bot.send_message(m.chat.id, txt, parse_mode="HTML")
 
 # Hisob to'ldirish summasini qabul qilish qismi
-@bot.message_handler(func=lambda m: usr_st.get(m.from_user.id) == "manual_amount")
+@bot.message_handler(func=lambda m: usr_st.get(m.from_user.id) == 'manual_amount')
 def manual_amount(m):
-        # 1. Boshqa menyu tugmasini bossa pul kiritishni bekor qilib, menyuni ochish
+    # 1. Boshqa menyu tugmasini bossa pul kiritishni bekor qilib, menyuni ochish
     if m.text in ["Xizmatlar", "Nomer olish", "Tayyor Kanallar", "Buyurtmalarim", "Pul ishlash", "Mening hisobim", "Hisob to'ldirish", "Murojaat", "Qo'llab-quvvatlash", "Hamkorlik", "Admin Panel"]:
         usr_st[m.from_user.id] = None
         bot.send_message(m.chat.id, "To'lov kiritish bekor qilindi. Iltimos, tugmani yana bir bor bosing.", reply_markup=m_menu(m.from_user.id))
         return
 
     if not m.text or not m.text.isdigit():
-        return bot.send_message(m.chat.id, "‼️ <b>Faqat raqamlardan foydalaning.</b>\n🔜 Masalan: 1000", parse_mode='HTML')
+        return bot.send_message(m.chat.id, "‼️ <b>Faqat raqamlardan foydalaning.</b>\n➡️ Masalan: 1000", parse_mode='HTML')
 
     amount = int(m.text)
     if amount < 1000:
-        return bot.send_message(m.chat.id, "⬇️ Minimal to'lov: 1,000 so'm")
+        return bot.send_message(m.chat.id, "ℹ️ Minimal to'lov: 1.000 so'm")
 
     try:
         r = payments_db.insert_one({"user_id": m.from_user.id, "amount": amount, "status": "awaiting_receipt", "created_at": datetime.now()})
@@ -857,7 +857,20 @@ def manual_amount(m):
                f"✅ To'lov qilib bo'lganingizdan so'ng to'lov avtomatik qabul qilinadi! (Yoki chekni yuboring)\n"
                f"⏳ To'lovni kutish vaqti: 5 daqiqa\n\n"
                f"❕ {amount:,} so'mdan ortiq yoki kam to'lov qilmang!")
+               
+        mk = IK(row_width=1)
+        mk.add(IB("❌ To'lovni bekor qilish", callback_data="cancel_pay"))
         
+        try:
+            img = requests.get("https://i.postimg.cc/CKMwmCTY/IMG-20261006-235926-697.jpg").content
+            bot.send_photo(m.chat.id, img, caption=txt, parse_mode='HTML', reply_markup=mk)
+        except:
+            bot.send_message(m.chat.id, txt, parse_mode='HTML', reply_markup=mk)
+            
+    except Exception as e:
+        usr_st[m.from_user.id] = None
+        bot.send_message(m.chat.id, f"Xatolik yuz berdi: {e}")
+
 @bot.callback_query_handler(func=lambda c: c.data == "cancel_pay")
 def cancel_payment_cb(c):
     bot.answer_callback_query(c.id, "To'lov bekor qilindi.")
@@ -866,7 +879,7 @@ def cancel_payment_cb(c):
         bot.delete_message(c.message.chat.id, c.message.message_id)
     except:
         pass
-    bot.send_message(c.message.chat.id, "❌ <b>To'lov bekor qilindi.</b>", reply_markup=m_menu(c.from_user.id), parse_mode='HTML')
+    bot.send_message(c.message.chat.id, "❌ <b>To'lov bekor qilindi.</b>", reply_markup=m_menu(c.message.chat.id), parse_mode='HTML')
     
         mk = IK(row_width=1)
         mk.add(IB("❌ To'lovni bekor qilish", callback_data="cancel_pay"))
