@@ -1024,13 +1024,12 @@ def gen_page(prefix, sc, page, c_id, msg_id):
     mk = IK(row_width=2)
     btns = []
     
-    for cid, cname in C_LIST[page*8:page*8+8]:
+        for cid, cname in C_LIST[page*8:page*8+8]:
         cost = pr.get(cid)
         if cost:
-            # MAXSUS FOIZ: Indoneziya ("6") uchun 3.5 barobar, qolganiga standart bot foizi
-           cmv = get_country_m(cid)
-        price_uzs = int(cost * gk * cmv)
-        btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
+            cmv = get_country_m(cid)
+            price_uzs = int(cost * gk * cmv)
+            btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
         else:
             btns.append(IB(f"{cname} (Yo'q)", callback_data="none"))
             
