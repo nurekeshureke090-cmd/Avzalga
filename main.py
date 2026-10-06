@@ -721,7 +721,13 @@ def adm_bts(m):
     if "Kanal ulash" in m.text:
         usr_st[m.from_user.id] = "set_chan"
         bot.send_message(m.chat.id, f"Majburiy obuna kanalini <b>@bilan</b> yuboring", parse_mode='HTML')
-        elif "Xabarnoma" in m.text:
+        @bot.message_handler(func=lambda m: is_admin(m.from_user.id) and any(x in m.text for x in ["Kanal ulash", "Xabarnoma", "Narxlarni o'zgartirish", "Foizlarni o'zgartirish", "Admin qo'shish", "Karta o'zgaritirish", "Murojaat o'zgartirish", "Qo'llanma o'zgartirish", "+ 2006", "+ 2010"]))
+def adm_btns(m):
+    if "Kanal ulash" in m.text:
+        usr_st[m.from_user.id] = "set_chan"
+        bot.send_message(m.chat.id, f"📌 <b>Majburiy obuna kanalini @bilan/...</b> yuboring.", parse_mode='HTML')
+        
+    elif "Xabarnoma" in m.text:
         usr_st[m.from_user.id] = "brd_msg"
         bot.send_message(m.chat.id, f"<b>Xabarni yuboring</b> (/cancel - bekor qilish):", parse_mode='HTML')
         
@@ -743,21 +749,25 @@ def adm_bts(m):
         bot.send_message(m.chat.id, "⚙️ <b>Qaysi xizmat ustama foizini o'zgartirasiz?</b>", reply_markup=mk, parse_mode='HTML')
         
     elif "Admin qo'shish" in m.text:
-
         usr_st[m.from_user.id] = "add_adm"
-        bot.send_message(m.chat.id, f"<b>Yangi admin ID raqami:</b>", parse_mode='HTML')
-    elif "Karta o'zgartirish" in m.text:
+        bot.send_message(m.chat.id, f"<b>Yangi admin ID raqamini:</b>", parse_mode='HTML')
+        
+    elif "Karta o'zgaritirish" in m.text:
         usr_st[m.from_user.id] = "set_c"
-        bot.send_message(m.chat.id, f"<b>Yangi karta:</b>\n<i>Hozirgi: {g_set('card')}</i>", parse_mode='HTML')
+        bot.send_message(m.chat.id, f"<b>Yangi karta:</b>\nHozirgi: <code>{g_set('card')}</code>", parse_mode='HTML')
+        
     elif "Murojaat o'zgartirish" in m.text:
         usr_st[m.from_user.id] = "set_a"
-        bot.send_message(m.chat.id, f"<b>Yangi admin (@bilan):</b>\n<i>Hozirgi: {g_set('admin')}</i>", parse_mode='HTML')
+        bot.send_message(m.chat.id, f"<b>Yangi admin @bilan:</b>\nHozirgi: {g_set('admin')}", parse_mode='HTML')
+        
     elif "Qo'llanma o'zgartirish" in m.text:
         usr_st[m.from_user.id] = "set_guide"
-        bot.send_message(m.chat.id, f"<b>Yangi video qo'llanmani yuboring.</b>\nPastiga matn yozishni unutmang.", parse_mode='HTML')
-    elif "➕ 2006" in m.text or "➕ 2010" in m.text:
-        usr_st[m.from_user.id] = f"wac_{'y1' if '2006' in m.text else 'y2'}"
+        bot.send_message(m.chat.id, f"<b>Yangi video qo'llanmani yuboring.</b>", parse_mode='HTML')
+        
+    elif "+ 2006" in m.text or "+ 2010" in m.text:
+        usr_st[m.from_user.id] = f"y2_{'2006' if '+ 2006' in m.text else 'y2'}"
         bot.send_message(m.chat.id, f"<b>Kanal ma'lumotlarini yuboring (Login:Parol):</b>", parse_mode='HTML')
+        
 
 @bot.callback_query_handler(func=lambda c: c.data.startswith("edp_"))
 def ed_p(c):
