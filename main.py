@@ -721,10 +721,11 @@ def adm_bts(m):
     if "Kanal ulash" in m.text:
         usr_st[m.from_user.id] = "set_chan"
         bot.send_message(m.chat.id, f"Majburiy obuna kanalini <b>@bilan</b> yuboring", parse_mode='HTML')
-    elif "Xabarnoma" in m.text:
+        elif "Xabarnoma" in m.text:
         usr_st[m.from_user.id] = "brd_msg"
         bot.send_message(m.chat.id, f"<b>Xabarni yuboring</b> (/cancel - bekor qilish):", parse_mode='HTML')
-        elif "Narxlarni o'zgartirish" in m.text:
+        
+    elif "Narxlarni o'zgartirish" in m.text:
         mk = IK(row_width=1).add(
             IB(f"06-09 Kanal: {g_set('p_y1')} so'm", callback_data="edp_p_y1"),
             IB(f"10-19 Kanal: {g_set('p_y2')} so'm", callback_data="edp_p_y2"),
