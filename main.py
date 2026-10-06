@@ -1029,7 +1029,7 @@ def gen_page(prefix, sc, page, c_id, msg_id):
         if cost:
             # MAXSUS FOIZ: Indoneziya ("6") uchun 3.5 barobar, qolganiga standart bot foizi
            cmv = get_country_m(cid)
-            price_uzs = int(cost * gk * cmv)
+price_uzs = int(cost * gk * cmv)
             btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
         else:
             btns.append(IB(f"{cname} (Yo'q)", callback_data="none"))
