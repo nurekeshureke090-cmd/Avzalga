@@ -204,7 +204,12 @@ def get_m(k):
         return 1.0 + (int(g_set(k)) / 100.0)
     except:
         return 1.20
-
+def get_country_m(cid):
+    val = g_set(f'm_num_{cid}')
+    if val != " ":
+        return 1.0 + (int(val) / 100.0)
+    return get_m('m_nomer')
+        
 # Grizzly API funksiyalari
 def get_gz_pr(sc=None, cid=None):
     try:
@@ -726,13 +731,15 @@ def adm_bts(m):
             IB(f"2 funksiya: {g_set('p_2func')} so'm", callback_data="edp_p_2func")
         )
         bot.send_message(m.chat.id, "⚙️ <b>Qaysi xizmat narxini o'zgartirasiz?</b>", reply_markup=mk, parse_mode='HTML')
-    elif "Foizlarni o'zgartirish" in m.text:
+        elif "Foizlarni o'zgartirish" in m.text:
         mk = IK(row_width=1).add(
-            IB(f"📱 Nomerlar: {g_set('m_nomer')}%", callback_data="edp_m_nomer"),
+            IB("🌍 Davlatlarga alohida foiz", callback_data="margin_countries"),
+            IB(f"📱 Umumiy Nomerlar: {g_set('m_nomer')}%", callback_data="edp_m_nomer"),
             IB(f"📺 YT Obunachi: {g_set('m_yt_sub')}%", callback_data="edp_m_yt_sub"),
             IB(f"🛍 Boshqa: {g_set('m_smm')}%", callback_data="edp_m_smm")
         )
         bot.send_message(m.chat.id, "⚙️ <b>Qaysi xizmat ustama foizini o'zgartirasiz?</b>", reply_markup=mk, parse_mode='HTML')
+    
     elif "Admin qo'shish" in m.text:
         usr_st[m.from_user.id] = "add_adm"
         bot.send_message(m.chat.id, f"<b>Yangi admin ID raqami:</b>", parse_mode='HTML')
@@ -974,6 +981,18 @@ C_LIST = [
     ("31", "JAR 🇿🇦"), ("34", "Estoniya 🇪🇪"), ("73", "Braziliya 🇧🇷"), ("21", "Ispaniya 🇪🇸")
 ]
 S_LIST = [("vk", "VKontakte"), ("go", "Google"), ("yt", "YouTube"), ("fb", "Facebook"), ("ig", "Instagram"), ("dt", "TikTok"), ("wa", "WhatsApp")]
+@bot.callback_query_handler(func=lambda c: c.data == "margin_countries")
+def margin_countries_menu(c):
+    bot.answer_callback_query(c.id)
+    mk = IK(row_width=2)
+    btns = []
+    for cid, cname in C_LIST:
+        val = g_set(f'm_num_{cid}')
+        d_val = f"{val}%" if val != " " else "Standart"
+        btns.append(IB(f"{cname} ({d_val})", callback_data=f"edp_m_num_{cid}"))
+    for i in range(0, len(btns), 2):
+        mk.row(*btns[i:i+2])
+    bot.edit_message_text("🌍 <b>Qaysi davlat foizini o'zgartirasiz?</b>\n<i>Eslatma: 'Standart' turgan davlatlar Umumiy Nomerlar foizini ishlatadi.</i>", c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
 
 @bot.callback_query_handler(func=lambda c: c.data == "none")
 def none_cb(c):
@@ -1001,7 +1020,7 @@ def gen_page(prefix, sc, page, c_id, msg_id):
         cost = pr.get(cid)
         if cost:
             # MAXSUS FOIZ: Indoneziya ("6") uchun 3.5 barobar, qolganiga standart bot foizi
-            cmv = 3.5 if str(cid) == "6" else get_m('m_nomer') 
+                    cmv = get_country_m(cid)
             price_uzs = int(cost * gk * cmv)
             btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
         else:
