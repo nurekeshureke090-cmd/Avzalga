@@ -816,29 +816,37 @@ def tu(m):
 """
     bot.send_message(m.chat.id, txt, parse_mode="HTML")
 
+# Hisob to'ldirish summasini qabul qilish qismi
 @bot.message_handler(func=lambda m: usr_st.get(m.from_user.id) == "manual_amount")
 def manual_amount(m):
+    # 1. Boshqa menyu tugmasini bossa pul kiritishni bekor qilib, menyuni ochish
+    if m.text in ["🛍 Xizmatlar", "📱 Nomer olish", "▶️ Tayyor Kanallar", "🛒 Buyurtmalarim", "💰 Pul ishlash", "💼 Mening hisobim", "💳 Hisob to'ldirish", "📞 Murojaat", "🛡 Qo'llab-quvvatlash", "🤝 Hamkorlik", "👑 Admin Panel"]:
+        usr_st[m.from_user.id] = None
+        bot.send_message(m.chat.id, "Bosh menyu", reply_markup=m_menu(m.from_user.id))
+        return
+
     if not m.text or not m.text.isdigit():
-        return bot.send_message(m.chat.id, "‼️ Faqat raqam kiriting.")
-        
+        return bot.send_message(m.chat.id, "‼️ <b>Faqat raqamlardan foydalaning.</b>\n🔜 Masalan: 1000", parse_mode='HTML')
+
     amount = int(m.text)
     if amount < 1000:
-        return bot.send_message(m.chat.id, "⚠️ Minimal to'lov: 1,000 so'm")
-        
+        return bot.send_message(m.chat.id, "⬇️ Minimal to'lov: 1,000 so'm")
+
     try:
-        r = payments_db.insert_one({"user_id": m.from_user.id, "amount": amount, "status": "awaiting_receipt", "created_at": int(time.time()), "method": "manual"})
+        r = payments_db.insert_one({"user_id": m.from_user.id, "amount": amount, "status": "awaiting_receipt", "created_at": datetime.now()})
         usr_st[m.from_user.id] = f"receipt_{str(r.inserted_id)}"
         
-        txt = f"""
-{ce_f('card', '💳')} <b>To'lov qilish</b>
-━━━━━━━━━━━━━━━━━━━━
-💵 Summa: <b>{amount:,} so'm</b>
-💳 Karta: <code>{g_set('card')}</code>
-
-📸 To'lov qilib bo'lgach, chek yoki skrinshotni shu yerga tashlang!
-⏳ <i>Kutilmoqda...</i>
-"""
-        bot.send_message(m.chat.id, txt, parse_mode="HTML")
+        txt = (f"💳 <b>To'lovni amalga oshiring!</b>\n\n"
+               f"➡️ <b>To'lov karta:</b> <code>9860166603758342</code>\n\n"
+               f"💵 <b>Miqdori:</b> {amount:,} so'm\n"
+               f"✅ To'lov qilib bo'lganingizdan so'ng to'lov avtomatik qabul qilinadi! (Yoki chekni yuboring)\n"
+               f"⏳ To'lovni kutish vaqti: 5 daqiqa\n\n"
+               f"❕ {amount:,} so'mdan ortiq yoki kam to'lov qilmang!")
+               
+        mk = IK(row_width=1)
+        mk.add(IB("❌ To'lovni bekor qilish", callback_data="cancel_pay"))
+        
+        bot.send_photo(m.chat.id, "https://i.postimg.cc/CKMwmCTY/IMG-20261006-235926-697.jpg", caption=txt, parse_mode='HTML', reply_markup=mk)
     except:
         usr_st[m.from_user.id] = None
         bot.send_message(m.chat.id, "Xatolik yuz berdi.")
@@ -846,14 +854,13 @@ def manual_amount(m):
 @bot.message_handler(content_types=["photo", "document"])
 def receive_receipt_fallback(m):
     st = str(usr_st.get(m.from_user.id, ""))
-    pid = st[8:] if st.startswith("receipt_") else None
     
-    if not pid:
-        pay = payments_db.find_one({"user_id": m.from_user.id, "status": "awaiting_receipt"})
-        if pay:
-            pid = str(pay["_id"])
-        else:
-            return
+    # FAQAT holati (state) aniq chek yuborish rejimida bo'lsagina qabul qiladi
+    if not st.startswith("receipt_"):
+        return 
+        
+    pid = st[8:]
+
             
     from bson import ObjectId
     try:
