@@ -716,7 +716,7 @@ def adm_stats(m):
     elif "Skidka" in m.text:
         bot.send_message(m.chat.id, f"{ce_f('gift', '🎁')} <b>Maxsus Skidka Ssilkasi:</b>\n<code>https://t.me/{bot.get_me().username}?start=skidka</code>", parse_mode='HTML')
 
-        @bot.message_handler(func=lambda m: is_admin(m.from_user.id) and any(x in m.text for x in ["Kanal ulash", "Xabarnoma", "Narxlarni o'zgartirish", "Foizlarni o'zgartirish", "Admin qo'shish", "Karta o'zgaritirish", "Murojaat o'zgartirish", "Qo'llanma o'zgartirish", "+ 2006", "+ 2010"]))
+@bot.message_handler(func=lambda m: is_admin(m.from_user.id) and any(x in m.text for x in ["Kanal ulash", "Xabarnoma", "Narxlarni o'zgartirish", "Foizlarni o'zgartirish", "Admin qo'shish", "Karta o'zgaritirish", "Murojaat o'zgartirish", "Qo'llanma o'zgartirish", "+ 2006", "+ 2010"]))
 def adm_btns(m):
     if "Kanal ulash" in m.text:
         usr_st[m.from_user.id] = "set_chan"
