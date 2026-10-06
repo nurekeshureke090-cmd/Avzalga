@@ -13,7 +13,7 @@ import dns.resolver
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1']
 
-TOKEN = '8904483870:AAH4Y-d4OfFtLWgmiDla2y8piRLgjsH0ydk'
+TOKEN = '8904483870:AAHND3t_STMmy_1X-QFthJG9SkjBam3QtSA'
 ADMIN_ID = 8467707826
 GRIZZLY_API_KEY = '3335af0d250efb73bdc40ebf82fa42dd'
 SMM_API_KEY = '17d89a016b9005b0e52bce6f67ad8e35'
@@ -1311,7 +1311,8 @@ def smm_services(m):
     )
     bot.send_message(m.chat.id, txt, reply_markup=mk, parse_mode='HTML')
 
-@bot.callback_query_handler(func=lambda c: c.data in ["search_services", "all_services"])
+
+    @bot.callback_query_handler(func=lambda c: c.data in ["search_services", "all_services"])
 def s_all(c):
     bot.answer_callback_query(c.id)
     if c.data == "search_services":
@@ -1321,8 +1322,13 @@ def s_all(c):
         services = g_smm()
         txt = f"🛒 <b>Barcha xizmatlar ({len(services)} ta):</b>\n\n"
         mk = IK(row_width=1)
+        gk = g_k("USD", 12700)
         for s in services:
-            mk.add(IB(f"🔹 {s['name']} - ${s['rate']}/1000", callback_data=f"sq_{s['service']}_all"))
+            cat = s.get('category', '')
+            mv = get_m('m_yt_sub') if 'youtube sub' in cat else (get_m('m_yt_watch') if 'youtube watch' in cat else get_m('m_smm'))
+            try: pr_uzs = int(float(str(s.get('rate', '0')).replace(',','.')) * gk * mv)
+            except: pr_uzs = 0
+            mk.add(IB(f"🔹 {s['name']} - {pr_uzs:,} so'm", callback_data=f"sq_{s['service']}_all"))
         mk.add(IB("🔙 Orqaga", callback_data="none"))
         bot.edit_message_text(txt, c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
 
@@ -1341,8 +1347,13 @@ def search_handler(m):
         
     txt = f"🔍 <b>Qidiruv natijasi: '{m.text}'</b>\nTopildi: <b>{len(results)}</b> ta\n\n"
     mk = IK(row_width=1)
+    gk = g_k("USD", 12700)
     for s in results[:15]:
-        mk.add(IB(f"🔹 {s['name']} - ${s['rate']}/1000", callback_data=f"sq_{s['service']}_search"))
+        cat = s.get('category', '')
+        mv = get_m('m_yt_sub') if 'youtube sub' in cat else (get_m('m_yt_watch') if 'youtube watch' in cat else get_m('m_smm'))
+        try: pr_uzs = int(float(str(s.get('rate', '0')).replace(',','.')) * gk * mv)
+        except: pr_uzs = 0
+        mk.add(IB(f"🔹 {s['name']} - {pr_uzs:,} so'm", callback_data=f"sq_{s['service']}_search"))
     mk.add(IB("🔙 Orqaga", callback_data="none"))
     bot.send_message(m.chat.id, txt, reply_markup=mk, parse_mode='HTML')
 
@@ -1417,6 +1428,36 @@ def n_ss(c):
         pass
 
 @bot.callback_query_handler(func=lambda c: c.data.startswith("sq_"))
+def sq_sel(c):
+    bot.answer_callback_query(c.id)
+    parts = c.data.split('_')
+    sid = parts[1]
+    cid = parts[2]
+    
+    srv = next((x for x in g_smm() if str(x.get('service')) == sid), None)
+    if not srv:
+        return bot.answer_callback_query(c.id, "Xizmat topilmadi")
+        
+    cat = srv.get('category', '')
+    mv = get_m('m_yt_sub') if 'youtube sub' in cat else (get_m('m_yt_watch') if 'youtube watch' in cat else get_m('m_smm'))
+    
+    def safe_float(v):
+        try:
+            return float(str(v).replace(',','.'))
+        except:
+            return 0.0
+            
+    pr = int(safe_float(srv.get('rate', '0')) * g_k("USD", 12700) * mv)
+    
+    txt = f"🛍 <b>Tanlandi: {srv['name']}</b>\n💵 <b>Narx:</b> {pr:,} so'm (1000 ta)\n🔗 <b>Link yuboring:</b>"
+    try:
+        bot.edit_message_text(txt, c.message.chat.id, c.message.message_id, parse_mode='HTML')
+    except:
+        pass
+        
+    usr_st[c.from_user.id] = 'wl'
+    tmp_dt[c.from_user.id] = {'s': sid, 'p': pr, 'm': int(srv.get('min',10)), 'x': int(srv.get('max',10000))}
+            @bot.callback_query_handler(func=lambda c: c.data.startswith("sq_"))
 def sq_sel(c):
     bot.answer_callback_query(c.id)
     parts = c.data.split('_')
