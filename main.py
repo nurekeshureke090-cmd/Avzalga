@@ -976,7 +976,6 @@ def nm(m):
     bot.send_message(m.chat.id, txt, reply_markup=mk, parse_mode='HTML')
 
 def gen_page(prefix, sc, page, c_id, msg_id):
-def gen_page(prefix, sc, page, c_id, msg_id):
     pr = get_gz_pr(sc=sc)
     gk = g_k("USD", 12700)
     mk = IK(row_width=2)
