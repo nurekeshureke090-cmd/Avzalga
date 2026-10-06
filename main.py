@@ -1260,36 +1260,6 @@ def ck_cl(c):
                 bot.edit_message_text(f"⏳ <b>Nomer hali tayyor emas. Yana bir marta bosing.</b>", c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
             except:
                 pass
-                
-                
-         else:
-            mk = IK().add(
-                IB("🔎 SMS olish", callback_data=f"ck_{p[1]}_{p[2]}"),
-                IB("❌ Bekor qilish", callback_data=f"cl_{p[1]}_{p[2]}")
-            )
-            try:
-                bot.edit_message_text(f"⏳ <b>Holat: {body[:50]}</b>", c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
-            except:
-                pass
-                
-    elif p[0] == "cl":
-        code, cancel_body, _ = http_get_text("https://api.grizzlysms.com/stubs/handler_api.php", {"api_key": GRIZZLY_API_KEY, "action": "setStatus", "status": 8, "id": p[1]}, timeout=15)
-        
-        if "ACCESS_CANCEL" in cancel_body:
-            u_bal(c.from_user.id, int(p[2]))
-            try:
-                bot.edit_message_text(f"✅ <b>Bekor qilindi!</b>\n💵 <b>Pul qaytdi:</b> {int(p[2]):,} so'm", c.message.chat.id, c.message.message_id, parse_mode='HTML')
-            except:
-                pass
-        else:
-            mk = IK().add(
-                IB("❌ Bekor qilish", callback_data=f"cl_{p[1]}_{p[2]}"),
-                IB("🔙 Orqaga", callback_data="ot_p_0")
-            )
-            try:
-                bot.edit_message_text(f"⏳ <b>Nomer hali bekor qilinmadi. 1-2 daqiqadan so'ng urinib ko'ring.</b>", c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
-            except:
-                pass
 
 # Tayyor Kanallar
 @bot.message_handler(func=lambda m: "Tayyor Kanallar" in m.text)
