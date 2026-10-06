@@ -724,14 +724,15 @@ def adm_bts(m):
     elif "Xabarnoma" in m.text:
         usr_st[m.from_user.id] = "brd_msg"
         bot.send_message(m.chat.id, f"<b>Xabarni yuboring</b> (/cancel - bekor qilish):", parse_mode='HTML')
-    elif "Narxlarni o'zgartirish" in m.text:
+        elif "Narxlarni o'zgartirish" in m.text:
         mk = IK(row_width=1).add(
             IB(f"06-09 Kanal: {g_set('p_y1')} so'm", callback_data="edp_p_y1"),
             IB(f"10-19 Kanal: {g_set('p_y2')} so'm", callback_data="edp_p_y2"),
             IB(f"2 funksiya: {g_set('p_2func')} so'm", callback_data="edp_p_2func")
         )
         bot.send_message(m.chat.id, "⚙️ <b>Qaysi xizmat narxini o'zgartirasiz?</b>", reply_markup=mk, parse_mode='HTML')
-        elif "Foizlarni o'zgartirish" in m.text:
+        
+    elif "Foizlarni o'zgartirish" in m.text:
         mk = IK(row_width=1).add(
             IB("🌍 Davlatlarga alohida foiz", callback_data="margin_countries"),
             IB(f"📱 Umumiy Nomerlar: {g_set('m_nomer')}%", callback_data="edp_m_nomer"),
@@ -739,8 +740,9 @@ def adm_bts(m):
             IB(f"🛍 Boshqa: {g_set('m_smm')}%", callback_data="edp_m_smm")
         )
         bot.send_message(m.chat.id, "⚙️ <b>Qaysi xizmat ustama foizini o'zgartirasiz?</b>", reply_markup=mk, parse_mode='HTML')
-    
+        
     elif "Admin qo'shish" in m.text:
+
         usr_st[m.from_user.id] = "add_adm"
         bot.send_message(m.chat.id, f"<b>Yangi admin ID raqami:</b>", parse_mode='HTML')
     elif "Karta o'zgartirish" in m.text:
@@ -1020,7 +1022,7 @@ def gen_page(prefix, sc, page, c_id, msg_id):
         cost = pr.get(cid)
         if cost:
             # MAXSUS FOIZ: Indoneziya ("6") uchun 3.5 barobar, qolganiga standart bot foizi
-                    cmv = get_country_m(cid)
+           cmv = get_country_m(cid)
             price_uzs = int(cost * gk * cmv)
             btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
         else:
@@ -1056,7 +1058,7 @@ def gen_top(prefix, sc, c_id, msg_id):
     
     for cid, cname, p_usd in sorted(valid_c, key=lambda x: x[2])[:6]:
         # MAXSUS FOIZ: Indoneziya ("6") uchun
-        cmv = 3.5 if str(cid) == "6" else get_m('m_nomer')
+        cmv = get_country_m(cid)
         price_uzs = int(p_usd * gk * cmv)
         btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
         
@@ -1153,7 +1155,7 @@ def ot_c_sel(c):
     pr = get_gz_pr(cid=cid)
     gk = g_k("USD", 12700)
     # MAXSUS FOIZ: Indoneziya ("6") uchun
-    cmv = 3.5 if str(cid) == "6" else get_m('m_nomer') 
+    cmv = get_country_m(cid)
     
     if not pr:
         try:
