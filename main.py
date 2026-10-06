@@ -858,7 +858,7 @@ def manual_amount(m):
                f"⏳ To'lovni kutish vaqti: 5 daqiqa\n\n"
                f"❕ {amount:,} so'mdan ortiq yoki kam to'lov qilmang!")
         
-         @bot.callback_query_handler(func=lambda c: c.data == "cancel_pay")
+@bot.callback_query_handler(func=lambda c: c.data == "cancel_pay")
 def cancel_payment_cb(c):
     bot.answer_callback_query(c.id, "To'lov bekor qilindi.")
     usr_st[c.from_user.id] = None
