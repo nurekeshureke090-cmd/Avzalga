@@ -1213,14 +1213,14 @@ def yt_channels(m):
     count_y1 = g_c('y1')
     count_y2 = g_c('y2')
     
-    for k, n, c in [("y1", "🔴 [ESKI] 2006-09", count_y1), ("y2", "🟠 [ESKI] 2010-19", count_y2)]:
-        p = int(g_set('p_' + k))
+        for k, n, c in (("y1", "🔴 [ESKI] 2006-09", count_y1), ("y2", "🟠 [ESKI] 2010-19", count_y2)):
+        p = int(g_sel('p_' + k))
         if has_sk:
-            mk.add(IB(f"{n} ({c} ta qoldi) - {p-15000:,} so'm (Skidka)", callback_data=f"by_{k}"))
+            mk.add(IB(f"{n} - {p-15000:,} so'm (Skidka)", callback_data=f"by_{k}"))
         else:
-            mk.add(IB(f"{n} ({c} ta qoldi) - {p:,} so'm", callback_data=f"by_{k}"))
+            mk.add(IB(f"{n} - {p:,} so'm", callback_data=f"by_{k}"))
             
-    p_2func = int(g_set('p_2func'))
+    p_2func = int(g_sel('p_2func'))
     mk.add(IB(f"🛠 2 funksiya - {p_2func:,} so'm", callback_data="by_n_2func"))
     
     bot.send_message(m.chat.id, txt, reply_markup=mk, parse_mode='HTML')
