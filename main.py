@@ -1262,7 +1262,7 @@ def ck_cl(c):
                 pass
                 
                 
-        else:
+         else:
             mk = IK().add(
                 IB("🔎 SMS olish", callback_data=f"ck_{p[1]}_{p[2]}"),
                 IB("❌ Bekor qilish", callback_data=f"cl_{p[1]}_{p[2]}")
