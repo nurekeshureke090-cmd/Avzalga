@@ -881,20 +881,7 @@ def cancel_payment_cb(c):
         pass
     bot.send_message(c.message.chat.id, "❌ <b>To'lov bekor qilindi.</b>", reply_markup=m_menu(c.message.chat.id), parse_mode='HTML')
     
-        mk = IK(row_width=1)
-        mk.add(IB("❌ To'lovni bekor qilish", callback_data="cancel_pay"))
-        
-        try:
-            # Rasmni aylanma yo'l bilan yuklab olib yuborish (Telegram bloklamasligi uchun)
-            img = requests.get("https://i.postimg.cc/CKMwmCTY/IMG-20261006-235926-697.jpg").content
-            bot.send_photo(m.chat.id, img, caption=txt, parse_mode='HTML', reply_markup=mk)
-        except:
-            bot.send_message(m.chat.id, txt, parse_mode='HTML', reply_markup=mk)
-            
-    except Exception as e:
-        usr_st[m.from_user.id] = None
-        bot.send_message(m.chat.id, "Xatolik yuz berdi.")
-        
+
 @bot.message_handler(content_types=["photo", "document"])
 def receive_receipt_fallback(m):
     st = str(usr_st.get(m.from_user.id, ""))
