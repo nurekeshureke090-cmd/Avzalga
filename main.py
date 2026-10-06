@@ -976,16 +976,18 @@ def nm(m):
     bot.send_message(m.chat.id, txt, reply_markup=mk, parse_mode='HTML')
 
 def gen_page(prefix, sc, page, c_id, msg_id):
+def gen_page(prefix, sc, page, c_id, msg_id):
     pr = get_gz_pr(sc=sc)
     gk = g_k("USD", 12700)
-    mv = get_m('m_nomer')
     mk = IK(row_width=2)
     btns = []
     
     for cid, cname in C_LIST[page*8:page*8+8]:
         cost = pr.get(cid)
         if cost:
-            price_uzs = int(cost * gk * mv)
+            # MAXSUS FOIZ: Indoneziya ("6") uchun 3.5 barobar, qolganiga standart bot foizi
+            cmv = 3.5 if str(cid) == "6" else get_m('m_nomer') 
+            price_uzs = int(cost * gk * cmv)
             btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
         else:
             btns.append(IB(f"{cname} (Yo'q)", callback_data="none"))
@@ -1005,6 +1007,35 @@ def gen_page(prefix, sc, page, c_id, msg_id):
         bot.edit_message_text(f"🌍 <b>Davlatni tanlang:</b>\n\n<i>Sahifa {page+1}/{tp}</i>", c_id, msg_id, reply_markup=mk, parse_mode='HTML')
     except:
         pass
+
+def gen_top(prefix, sc, c_id, msg_id):
+    pr = get_gz_pr(sc=sc)
+    gk = g_k("USD", 12700)
+    valid_c = []
+    
+    for cid, cname in C_LIST:
+        if cid in pr:
+            valid_c.append((cid, cname, pr[cid]))
+            
+    mk = IK(row_width=2)
+    btns = []
+    
+    for cid, cname, p_usd in sorted(valid_c, key=lambda x: x[2])[:6]:
+        # MAXSUS FOIZ: Indoneziya ("6") uchun
+        cmv = 3.5 if str(cid) == "6" else get_m('m_nomer')
+        price_uzs = int(p_usd * gk * cmv)
+        btns.append(IB(f"{cname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
+        
+    for i in range(0, len(btns), 2):
+        mk.row(*btns[i:i+2])
+        
+    mk.add(IB("🔙 Orqaga", callback_data=f"{prefix}_p_0"))
+    
+    try:
+        bot.edit_message_text("⭐ <b>TOP 6 eng arzon davlatlar:</b>", c_id, msg_id, reply_markup=mk, parse_mode='HTML')
+    except:
+        pass
+        
 
 @bot.callback_query_handler(func=lambda c: c.data.startswith("tg_p_"))
 def tg_pg(c):
@@ -1087,7 +1118,8 @@ def ot_c_sel(c):
         
     pr = get_gz_pr(cid=cid)
     gk = g_k("USD", 12700)
-    mv = get_m('m_nomer')
+    # MAXSUS FOIZ: Indoneziya ("6") uchun
+    cmv = 3.5 if str(cid) == "6" else get_m('m_nomer') 
     
     if not pr:
         try:
@@ -1095,6 +1127,30 @@ def ot_c_sel(c):
         except:
             pass
         return
+    
+    txt = f"🛍 <b>Tarmoqni tanlang:</b>\n♻️ <b>Davlat: {cname}</b>\n\n"
+    mk = IK(row_width=2)
+    btns = []
+    
+    for sc, sname in S_LIST:
+        cost = pr.get(sc)
+        if cost:
+            price_uzs = int(cost * gk * cmv)
+            txt += f"🔹 <b>{sname}</b> - {price_uzs:,} so'm\n"
+            btns.append(IB(f"{sname} - {price_uzs:,} so'm", callback_data=f"buy_{sc}_{cid}_{price_uzs}"))
+        else:
+            btns.append(IB(f"{sname} (Yo'q)", callback_data="none"))
+            
+    for i in range(0, len(btns), 2):
+        mk.row(*btns[i:i+2])
+        
+    mk.add(IB("🔙 Orqaga", callback_data="ot_p_0"))
+    
+    try:
+        bot.edit_message_text(txt, c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
+    except:
+        pass
+    return
     
     txt = f"🛍 <b>Tarmoqni tanlang:</b>\n♻️ <b>Davlat: {cname}</b>\n\n"
     mk = IK(row_width=2)
@@ -1175,6 +1231,37 @@ def ck_cl(c):
                 bot.edit_message_text(f"✅ <b>SMS KOD KELDI!</b>\n\n🔑 <b>KOD:</b> <code>{sms_code}</code>", c.message.chat.id, c.message.message_id, parse_mode='HTML')
             except:
                 pass
+                
+        else:
+            mk = IK().add(
+                IB("🔎 SMS olish", callback_data=f"ck_{p[1]}_{p[2]}"),
+                IB("❌ Bekor qilish", callback_data=f"cl_{p[1]}_{p[2]}")
+            )
+            try:
+                bot.edit_message_text(f"⏳ <b>Holat: {body[:50]}</b>", c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
+            except:
+                pass
+                
+    elif p[0] == "cl":
+        # Pul kafolatli qaytariladigan joy:
+        code, cancel_body, err = http_get_text("https://api.grizzlysms.com/stubs/handler_api.php", {"api_key": GRIZZLY_API_KEY, "action": "setStatus", "status": 8, "id": p[1]}, timeout=15)
+        
+        if not cancel_body or "ACCESS_CANCEL" in cancel_body or "EARLY_CANCEL_DENIED" in cancel_body or err:
+            u_bal(c.from_user.id, int(p[2]))
+            try:
+                bot.edit_message_text(f"✅ <b>Nomer bekor qilindi!</b>\n💵 <b>Pul hisobingizga to'liq qaytarildi:</b> {int(p[2]):,} so'm", c.message.chat.id, c.message.message_id, parse_mode='HTML')
+            except:
+                pass
+        else:
+            mk = IK().add(
+                IB("❌ Qayta bekor qilish", callback_data=f"cl_{p[1]}_{p[2]}"),
+                IB("🔙 Orqaga", callback_data="ot_p_0")
+            )
+            try:
+                bot.edit_message_text(f"⏳ <b>Nomer hali tayyor emas. Yana bir marta bosing.</b>", c.message.chat.id, c.message.message_id, reply_markup=mk, parse_mode='HTML')
+            except:
+                pass
+                
                 
         else:
             mk = IK().add(
