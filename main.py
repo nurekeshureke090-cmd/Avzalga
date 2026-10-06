@@ -844,19 +844,18 @@ def manual_amount(m):
                f"❕ {amount:,} so'mdan ortiq yoki kam to'lov qilmang!")
                
         mk = IK(row_width=1)
-        # Bekor qilish tugmasi xato bermasligi uchun "none" qilib qo'yildi
-        mk.add(IB("❌ To'lovni bekor qilish", callback_data="none")) 
+        mk.add(IB("❌ To'lovni bekor qilish", callback_data="cancel_pay"))
         
         try:
-            # Bot rasmni yuborishga urinib ko'radi
-            bot.send_photo(m.chat.id, "https://i.postimg.cc/CKMwmCTY/IMG-20261006-235926-697.jpg", caption=txt, parse_mode='HTML', reply_markup=mk)
+            # Rasmni aylanma yo'l bilan yuklab olib yuborish (Telegram bloklamasligi uchun)
+            img = requests.get("https://i.postimg.cc/CKMwmCTY/IMG-20261006-235926-697.jpg").content
+            bot.send_photo(m.chat.id, img, caption=txt, parse_mode='HTML', reply_markup=mk)
         except:
-            # Agar rasm havolasi ishlamasa yoki bloklansa, faqat matnni yuboradi
             bot.send_message(m.chat.id, txt, parse_mode='HTML', reply_markup=mk)
             
     except Exception as e:
         usr_st[m.from_user.id] = None
-        bot.send_message(m.chat.id, f"Tizimda xatolik yuz berdi: {e}")
+        bot.send_message(m.chat.id, "Xatolik yuz berdi.")
         
 @bot.message_handler(content_types=["photo", "document"])
 def receive_receipt_fallback(m):
