@@ -842,7 +842,17 @@ def manual_amount(m):
                f"✅ To'lov qilib bo'lganingizdan so'ng to'lov avtomatik qabul qilinadi! (Yoki chekni yuboring)\n"
                f"⏳ To'lovni kutish vaqti: 5 daqiqa\n\n"
                f"❕ {amount:,} so'mdan ortiq yoki kam to'lov qilmang!")
-               
+        
+         @bot.callback_query_handler(func=lambda c: c.data == "cancel_pay")
+def cancel_payment_cb(c):
+    bot.answer_callback_query(c.id, "To'lov bekor qilindi.")
+    usr_st[c.from_user.id] = None
+    try:
+        bot.delete_message(c.message.chat.id, c.message.message_id)
+    except:
+        pass
+    bot.send_message(c.message.chat.id, "❌ <b>To'lov bekor qilindi.</b>", reply_markup=m_menu(c.from_user.id), parse_mode='HTML')
+    
         mk = IK(row_width=1)
         mk.add(IB("❌ To'lovni bekor qilish", callback_data="cancel_pay"))
         
