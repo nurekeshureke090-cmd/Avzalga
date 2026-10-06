@@ -1312,7 +1312,7 @@ def smm_services(m):
     bot.send_message(m.chat.id, txt, reply_markup=mk, parse_mode='HTML')
 
 
-    @bot.callback_query_handler(func=lambda c: c.data in ["search_services", "all_services"])
+@bot.callback_query_handler(func=lambda c: c.data in ["search_services", "all_services"])
 def s_all(c):
     bot.answer_callback_query(c.id)
     if c.data == "search_services":
