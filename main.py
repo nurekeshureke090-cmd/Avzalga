@@ -1457,7 +1457,7 @@ def sq_sel(c):
         
     usr_st[c.from_user.id] = 'wl'
     tmp_dt[c.from_user.id] = {'s': sid, 'p': pr, 'm': int(srv.get('min',10)), 'x': int(srv.get('max',10000))}
-            @bot.callback_query_handler(func=lambda c: c.data.startswith("sq_"))
+@bot.callback_query_handler(func=lambda c: c.data.startswith("sq_"))
 def sq_sel(c):
     bot.answer_callback_query(c.id)
     parts = c.data.split('_')
