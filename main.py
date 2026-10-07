@@ -1024,7 +1024,7 @@ def gen_page(prefix, sc, page, c_id, msg_id):
     mk = IK(row_width=2)
     btns = []
     
-        for cid, cname in C_LIST[page*8:page*8+8]:
+            for cid, cname in C_LIST[page*8:page*8+8]:
         cost = pr.get(cid)
         if cost:
             cmv = get_country_m(cid)
