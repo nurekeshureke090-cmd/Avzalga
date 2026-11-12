@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin Boshqaruv Markazi</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    #adminApp {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .admin-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .crown-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .admin-meta h2 { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .badge-admin {
+      background: #f59e0b; color: black; font-size: 10px; font-weight: 800;
+      padding: 2px 6px; border-radius: 6px; text-transform: uppercase;
+    }
+    .admin-meta p { font-size: 11px; color: var(--text-muted); }
+
+    /* Top Navigation Tabs */
+    .admin-nav-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .admin-nav-bar::-webkit-scrollbar { display: none; }
+
+    .nav-pill {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .count-badge {
+      background: rgba(239, 68, 68, 0.8);
+      color: white;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    /* Stats Grid */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+    .stat-card span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px; }
+    .stat-card b { font-size: 20px; font-weight: 800; color: #f8fafc; }
+    .stat-card.gold b { color: #f59e0b; }
+
+    /* Order / Payment Cards */
+    .item-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 8px;
+    }
+
+    .user-info { display: flex; align-items: center; gap: 8px; }
+    .user-avatar-mini {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent-light); display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .user-title { font-weight: 700; font-size: 13px; }
+    .user-id-text { font-size: 11px; color: var(--text-muted); }
+
+    .status-badge {
+      font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px;
+      background: rgba(245, 158, 11, 0.15); color: #f59e0b;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+    .info-grid div span { color: var(--text-muted); display: block; font-size: 10px; text-transform: uppercase; }
+    .info-grid div b { font-size: 13px; color: var(--text-primary); }
+    .highlight-green { color: #10b981 !important; }
+
+    .receipt-preview {
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .receipt-preview img {
+      max-height: 180px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-success { background: #10b981; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-block { width: 100%; }
+
+    /* Input controls */
+    .input-box {
+      margin-bottom: 14px;
+    }
+    .input-box label {
+      display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600;
+    }
+    .input-box input, .input-box textarea {
+      width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color);
+      padding: 12px; border-radius: var(--radius-sm); color: white; font-size: 14px; outline: none;
+    }
+    .input-box input:focus, .input-box textarea:focus { border-color: var(--accent); }
+
+    .pane { display: none; }
+    .pane.active { display: block; }
+  </style>
+</head>
+<body>
+  <div id="adminApp">
+    <!-- Header -->
+    <div class="admin-header">
+      <div class="admin-title-box">
+        <div class="crown-icon">👑</div>
+        <div class="admin-meta">
+          <h2>Admin Markazi <span class="badge-admin">Admin</span></h2>
+          <p>Bizning do'konni to'liq boshqarish tizimi</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Pills -->
+    <div class="admin-nav-bar">
+      <button class="nav-pill active" onclick="switchAdminTab('pane-payments')">
+        ⏳ To'lovlar <span class="count-badge" id="countPayments">0</span>
+      </button>
+      <button class="nav-pill" onclick="switchAdminTab('pane-orders')">
+        📦 Buyurtmalar <span class="count-badge" id="countOrders">0</span>
+      </button>
+      <button class="nav-pill" onclick="switchAdminTab('pane-channels')">
+        ▶️ Tayyor Kanallar
+      </button>
+      <button class="nav-pill" onclick="switchAdminTab('pane-prices')">
+        ⚙️ Narx & Karta
+      </button>
+    </div>
+
+    <!-- 1. TO'LOVLAR (PAYMENTS) -->
+    <section id="pane-payments" class="pane active">
+      <div class="stats-row">
+        <div class="stat-card">
+          <span>Kutilayotgan To'lovlar</span>
+          <b id="statPayCount">0 ta</b>
+        </div>
+        <div class="stat-card gold">
+          <span>Kutilayotgan Summa</span>
+          <b id="statPaySum">0 so'm</b>
+        </div>
+      </div>
+
+      <div id="paymentsContainer">
+        <div style="text-align:center; padding:20px; color:var(--text-muted);">Yuklanmoqda...</div>
+      </div>
+    </section>
+
+    <!-- 2. BUYURTMALAR (ORDERS: Gemini, Kanal ochish, 2-funksiya) -->
+    <section id="pane-orders" class="pane">
+      <div style="margin-bottom:12px; font-weight:700; color:var(--text-secondary);">
+        Mijozlar buyurtmalari (Gemini obuna, yangi kanal va h.k.):
+      </div>
+      <div id="ordersContainer">
+        <div style="text-align:center; padding:20px; color:var(--text-muted);">Yuklanmoqda...</div>
+      </div>
+    </section>
+
+    <!-- 3. TAYYOR YOUTUBE KANALLAR BAZASI -->
+    <section id="pane-channels" class="pane">
+      <div class="stats-row">
+        <div class="stat-card">
+          <span>2006-2009 Kanallar</span>
+          <b id="stockY1">0 ta</b>
+        </div>
+        <div class="stat-card">
+          <span>2010-2019 Kanallar</span>
+          <b id="stockY2">0 ta</b>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <h4 style="margin-bottom:10px;">➕ Bazaga Yangi Kanal Qo'shish:</h4>
+        <div class="input-box">
+          <label>Kanal turi:</label>
+          <select id="channelTypeSelect" style="width:100%; background:var(--bg-tertiary); border:1px solid var(--border-color); color:white; padding:10px; border-radius:8px;">
+            <option value="y1">2006 - 2009 yilgi kanal</option>
+            <option value="y2">2010 - 2019 yilgi kanal</option>
+          </select>
+        </div>
+        <div class="input-box">
+          <label>Kanal ma'lumotlari (Login:Parol yoki havola):</label>
+          <textarea id="channelDataInput" rows="3" placeholder="gmail@gmail.com:parol123"></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="addChannelToDb()">Saqlash va Bazaga Qo'shish</button>
+      </div>
+    </section>
+
+    <!-- 4. NARX VA SOZLAMALAR -->
+    <section id="pane-prices" class="pane">
+      <div class="item-card">
+        <h4 style="margin-bottom:12px;">💳 To'lov Kartasi</h4>
+        <div class="input-box">
+          <label>Karta raqami (Uzcard / Humo):</label>
+          <input type="text" id="adminCardInput" placeholder="8600 0000 0000 0000">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="saveAdminCard()">Karta Raqamini Saqlash</button>
+      </div>
+
+      <div class="item-card">
+        <h4 style="margin-bottom:12px;">⚙️ Xizmatlar Narxlari (so'mda)</h4>
+        <div class="input-box">
+          <label>2006-2009 YouTube Kanal:</label>
+          <input type="number" id="priceY1Input" placeholder="190000">
+        </div>
+        <div class="input-box">
+          <label>2010-2019 YouTube Kanal:</label>
+          <input type="number" id="priceY2Input" placeholder="120000">
+        </div>
+        <div class="input-box">
+          <label>Gemini Advanced Obuna:</label>
+          <input type="number" id="priceGemInput" placeholder="50000">
+        </div>
+        <div class="input-box">
+          <label>Kanal Ochib Berish Xizmati:</label>
+          <input type="number" id="priceChannelInput" placeholder="100000">
+        </div>
+        <button class="btn btn-success btn-block" onclick="savePrices()">Narxlarni Yangilash</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.expand(); }
+
+    const ADMIN_IDS = [7506934963, 8467707826];
+    let currentAdminId = 8467707826;
+
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      currentAdminId = tg.initDataUnsafe.user.id;
+    }
+
+    if (!ADMIN_IDS.includes(currentAdminId)) {
+      document.body.innerHTML = "<div style='color:red; text-align:center; padding:50px; font-weight:800;'>❌ Kirish taqiqlangan! Faqat adminlar uchun.</div>";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadAdminData();
+    });
+
+    function switchAdminTab(paneId) {
+      document.querySelectorAll(".pane").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".nav-pill").forEach(el => el.classList.remove("active"));
+      document.getElementById(paneId).classList.add("active");
+      event.currentTarget.classList.add("active");
+    }
+
+    async function loadAdminData() {
+      try {
+        const res = await fetch(`/api/admin/overview?uid=${currentAdminId}`);
+        const data = await res.json();
+        if (data.ok) {
+          renderPayments(data.payments);
+          renderOrders(data.orders);
+          document.getElementById("stockY1").innerText = `${data.stock_y1} ta`;
+          document.getElementById("stockY2").innerText = `${data.stock_y2} ta`;
+          document.getElementById("adminCardInput").value = data.settings.card || "";
+          document.getElementById("priceY1Input").value = data.settings.p_y1 || 190000;
+          document.getElementById("priceY2Input").value = data.settings.p_y2 || 120000;
+          document.getElementById("priceGemInput").value = data.settings.p_gemini || 50000;
+          document.getElementById("priceChannelInput").value = data.settings.p_2func || 100000;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function renderPayments(list) {
+      const container = document.getElementById("paymentsContainer");
+      document.getElementById("countPayments").innerText = list.length;
+      document.getElementById("statPayCount").innerText = `${list.length} ta`;
+
+      let totalSum = 0;
+      list.forEach(p => totalSum += (p.amount || 0));
+      document.getElementById("statPaySum").innerText = `${totalSum.toLocaleString()} so'm`;
+
+      if (!list || list.length === 0) {
+        container.innerHTML = "<div style='text-align:center; padding:30px; color:var(--text-muted);'>Hozirda kutilayotgan to'lovlar yo'q ✅</div>";
+        return;
+      }
+
+      let html = "";
+      list.forEach(p => {
+        html += `
+          <div class="item-card">
+            <div class="item-header">
+              <div class="user-info">
+                <div class="user-avatar-mini">👤</div>
+                <div>
+                  <div class="user-title">User: ${p.user_id}</div>
+                  <div class="user-id-text">${p.date || "Yangi"}</div>
+                </div>
+              </div>
+              <span class="status-badge">⏳ Kutilmoqda</span>
+            </div>
+            <div class="info-grid">
+              <div><span>Miqdor</span><b class="highlight-green">+${(p.amount || 0).toLocaleString()} so'm</b></div>
+              <div><span>To'lov usuli</span><b>Uzcard / Humo</b></div>
+            </div>
+            ${p.receipt_url ? `
+              <div class="receipt-preview">
+                <img src="${p.receipt_url}" alt="Chek">
+              </div>` : `<div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">To'lov cheki rasm holda yuborilgan</div>`}
+            <div class="action-buttons">
+              <button class="btn btn-success" onclick="approvePayment('${p.id}')">✓ Tasdiqlash</button>
+              <button class="btn btn-danger" onclick="rejectPayment('${p.id}')">✕ Rad etish</button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderOrders(list) {
+      const container = document.getElementById("ordersContainer");
+      document.getElementById("countOrders").innerText = list.length;
+      if (!list || list.length === 0) {
+        container.innerHTML = "<div style='text-align:center; padding:30px; color:var(--text-muted);'>Kutilayotgan buyurtmalar yo'q ✅</div>";
+        return;
+      }
+
+      let html = "";
+      list.forEach(o => {
+        html += `
+          <div class="item-card">
+            <div class="item-header">
+              <div class="user-info">
+                <div class="user-avatar-mini">📦</div>
+                <div>
+                  <div class="user-title">${o.oid || "Xizmat"}</div>
+                  <div class="user-id-text">Mijoz ID: ${o.user_id}</div>
+                </div>
+              </div>
+              <span class="status-badge">⏳ Bajarish kerak</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.25); padding:10px; border-radius:8px; font-size:12px; margin-bottom:12px;">
+              <span style="color:var(--text-muted);">Mijoz ma'lumoti/istagi:</span><br>
+              <b>${o.link || "Standart buyurtma"}</b>
+            </div>
+            <div class="input-box" style="margin-bottom:8px;">
+              <input type="text" id="delivery_${o.id}" placeholder="Mijozga havola yoki Gmail:Parol yozing">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="deliverOrder('${o.id}', '${o.user_id}')">
+              📤 Mijozga Yuborish & Yopish
+            </button>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    async function approvePayment(pid) {
+      if (!confirm("To'lov tasdiqlanib, user balansiga pul o'tkazilsinmi?")) return;
+      const res = await fetch("/api/admin/action_payment", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ pid: pid, action: "paid", admin_id: currentAdminId })
+      });
+      const d = await res.json();
+      if (d.ok) { alert("✅ Tasdiqlandi!"); loadAdminData(); }
+    }
+
+    async function rejectPayment(pid) {
+      if (!confirm("To'lov rad etilsinmi?")) return;
+      const res = await fetch("/api/admin/action_payment", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ pid: pid, action: "rejected", admin_id: currentAdminId })
+      });
+      const d = await res.json();
+      if (d.ok) { alert("❌ Rad etildi!"); loadAdminData(); }
+    }
+
+    async function deliverOrder(oid, uid) {
+      const val = document.getElementById(`delivery_${oid}`).value.trim();
+      if (!val) return alert("Iltimos, mijozga yuboriladigan havolani yoki login:parolni yozing!");
+      const res = await fetch("/api/admin/deliver_order", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ oid: oid, uid: uid, text: val, admin_id: currentAdminId })
+      });
+      const d = await res.json();
+      if (d.ok) { alert("✅ Mijozga yetkazildi!"); loadAdminData(); }
+    }
+
+    async function addChannelToDb() {
+      const type = document.getElementById("channelTypeSelect").value;
+      const data = document.getElementById("channelDataInput").value.trim();
+      if (!data) return alert("Kanal ma'lumotlarini kiriting!");
+      const res = await fetch("/api/admin/add_channel", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ type: type, data: data, admin_id: currentAdminId })
+      });
+      const d = await res.json();
+      if (d.ok) {
+        alert("✅ Kanal bazaga qo'shildi!");
+        document.getElementById("channelDataInput").value = "";
+        loadAdminData();
+      }
+    }
+
+    async function saveAdminCard() {
+      const c = document.getElementById("adminCardInput").value.trim();
+      const res = await fetch("/api/admin/save_setting", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ key: "card", value: c, admin_id: currentAdminId })
+      });
+      alert("✅ Karta saqlandi!");
+    }
+
+    async function savePrices() {
+      const p_y1 = document.getElementById("priceY1Input").value;
+      const p_y2 = document.getElementById("priceY2Input").value;
+      const p_gem = document.getElementById("priceGemInput").value;
+      const p_2f = document.getElementById("priceChannelInput").value;
+
+      await fetch("/api/admin/save_setting", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ key: "p_y1", value: p_y1, admin_id: currentAdminId }) });
+      await fetch("/api/admin/save_setting", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ key: "p_y2", value: p_y2, admin_id: currentAdminId }) });
+      await fetch("/api/admin/save_setting", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ key: "p_gemini", value: p_gem, admin_id: currentAdminId }) });
+      await fetch("/api/admin/save_setting", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ key: "p_2func", value: p_2f, admin_id: currentAdminId }) });
+
+      alert("✅ Barcha mahsulotlar narxi yangilandi!");
+      loadAdminData();
+    }
+  </script>
+</body>
+</html>
