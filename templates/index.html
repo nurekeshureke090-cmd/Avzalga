@@ -10,57 +10,52 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #0b0f19;
-      --bg-secondary: #131b2e;
-      --bg-tertiary: #1b2640;
+      --bg-primary: #080c15;
+      --bg-secondary: #0f172a;
+      --bg-tertiary: #172033;
       --accent: #6366f1;
-      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.4);
       --accent-light: rgba(99, 102, 241, 0.15);
       --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
       --border-color: rgba(255, 255, 255, 0.08);
-      --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --radius-sm: 8px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       background-color: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
       overflow-x: hidden;
       font-size: 14px;
-      line-height: 1.5;
     }
 
     #app {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      max-width: 540px;
+      max-width: 500px;
       margin: 0 auto;
       width: 100%;
-      position: relative;
-      background-color: var(--bg-primary);
+      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 50%),
+                  radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.08), transparent 50%);
     }
 
+    /* Header */
     .app-header {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(11, 15, 25, 0.85);
-      backdrop-filter: blur(12px);
-      padding: 12px 16px;
+      background: rgba(8, 12, 21, 0.85);
+      backdrop-filter: blur(16px);
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -69,23 +64,25 @@
 
     .user-pill { display: flex; align-items: center; gap: 10px; }
     .user-avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #d946ef);
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+      padding: 2px;
+      box-shadow: 0 0 20px var(--accent-glow);
     }
+    .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .user-meta { display: flex; flex-direction: column; }
-    .user-name { font-weight: 700; font-size: 14px; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-name { font-weight: 700; font-size: 14px; color: var(--text-primary); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .user-id { font-size: 11px; color: var(--text-muted); }
 
     .balance-badge {
       display: flex; align-items: center; gap: 8px;
-      background: var(--bg-secondary); border: 1px solid var(--border-color);
-      padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all 0.2s;
     }
-    .balance-badge:hover { border-color: var(--accent); background: var(--bg-tertiary); }
-    .balance-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
-    .balance-val { font-weight: 700; font-size: 13px; color: #38bdf8; }
+    .balance-badge:active { transform: scale(0.96); }
+    .balance-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; }
+    .balance-val { font-weight: 800; font-size: 13px; color: #38bdf8; }
     .plus-icon {
       background: var(--accent); color: white; width: 18px; height: 18px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
@@ -94,239 +91,264 @@
     .main-content { flex: 1; padding: 16px 16px 85px 16px; }
     .tab-pane { display: none; animation: fadeIn 0.25s ease-out; }
     .tab-pane.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    /* Hero Banner */
     .hero-card {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
-      border-radius: var(--radius-lg); padding: 20px; color: white; margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 15px 35px -10px rgba(79, 70, 229, 0.4);
+      background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 50%, #4338ca 100%);
+      border-radius: var(--radius-lg); padding: 22px; color: white; margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.5);
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-art {
+      position: absolute; right: -10px; bottom: -10px; width: 120px; height: 120px;
+      opacity: 0.15; pointer-events: none;
     }
     .hero-tag {
-      display: inline-block; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);
-      padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-bottom: 10px;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);
+      padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-bottom: 12px;
     }
-    .hero-card h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .hero-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
     .hero-card p { font-size: 12px; color: rgba(255, 255, 255, 0.8); margin-bottom: 16px; }
     .hero-quick-stats {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12); padding-top: 14px;
     }
     .hero-quick-stats div { display: flex; flex-direction: column; }
-    .hero-quick-stats b { font-size: 16px; font-weight: 800; }
+    .hero-quick-stats b { font-size: 17px; font-weight: 800; }
     .hero-quick-stats span { font-size: 10px; color: rgba(255, 255, 255, 0.7); }
 
     .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .section-head h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .section-head h3 { font-size: 16px; font-weight: 800; color: var(--text-primary); }
 
+    /* Services Grid */
     .services-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .service-card {
       background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      padding: 14px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s;
+      padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
     }
-    .service-card:hover { border-color: rgba(99, 102, 241, 0.4); background: var(--bg-tertiary); }
+    .service-card:hover { border-color: rgba(99, 102, 241, 0.5); background: var(--bg-tertiary); transform: translateY(-2px); }
     .service-card:active { transform: scale(0.98); }
 
-    .card-icon {
-      width: 50px; height: 50px; border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+    .card-icon-wrapper {
+      width: 52px; height: 52px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      position: relative; overflow: hidden;
     }
-    .phone-gradient { background: linear-gradient(135deg, #0284c7, #38bdf8); }
-    .yt-gradient { background: linear-gradient(135deg, #dc2626, #f87171); }
-    .gemini-gradient { background: linear-gradient(135deg, #7c3aed, #c084fc); }
-    .tool-gradient { background: linear-gradient(135deg, #059669, #34d399); }
+    .card-icon-img {
+      width: 36px; height: 36px; object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    .phone-bg { background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(56, 189, 248, 0.1)); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .yt-bg { background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(248, 113, 113, 0.1)); border: 1px solid rgba(248, 113, 113, 0.3); }
+    .gemini-bg { background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(192, 132, 252, 0.1)); border: 1px solid rgba(192, 132, 252, 0.3); }
+    .tool-bg { background: linear-gradient(135deg, rgba(5, 150, 105, 0.2), rgba(52, 211, 153, 0.1)); border: 1px solid rgba(52, 211, 153, 0.3); }
 
     .card-body { flex: 1; }
     .card-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
     .card-body p { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
     .card-foot { display: flex; align-items: center; justify-content: space-between; }
-    .price-chip { font-size: 12px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 6px; }
-    .arrow-btn { font-size: 16px; color: var(--text-muted); }
+    .price-chip { font-size: 12px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 3px 10px; border-radius: 6px; }
+    .arrow-icon { width: 16px; height: 16px; opacity: 0.5; }
 
-    .sub-head { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin: 12px 0 8px 0; }
+    /* Networks & Countries */
+    .sub-head { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin: 14px 0 8px 0; }
     .network-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
     .network-chips::-webkit-scrollbar { display: none; }
     .net-chip {
       background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary);
-      padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s;
+      padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s;
     }
-    .net-chip.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 12px rgba(99, 102, 241, 0.5); }
+    .net-chip img { width: 18px; height: 18px; object-fit: contain; }
+    .net-chip.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
 
     .search-box input {
       width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color);
-      padding: 10px 14px; border-radius: var(--radius-md); color: var(--text-primary); font-size: 13px; outline: none;
+      padding: 12px 16px; border-radius: var(--radius-md); color: var(--text-primary); font-size: 14px; outline: none;
     }
     .search-box input:focus { border-color: var(--accent); }
 
     .country-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .country-row {
       background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.15s;
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+      transition: all 0.15s;
     }
     .country-row:hover { background: var(--bg-tertiary); border-color: var(--accent); }
-    .country-title { font-size: 14px; font-weight: 600; }
-    .country-price { font-weight: 700; color: #38bdf8; font-size: 13px; }
+    .country-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .country-price { font-weight: 800; color: #38bdf8; font-size: 13px; }
     .country-out { color: var(--text-muted); font-size: 12px; }
 
     .active-number-card {
       margin-top: 16px; background: linear-gradient(135deg, #1e1b4b, #172554);
-      border: 1px solid #3b82f6; border-radius: var(--radius-lg); padding: 16px;
+      border: 1px solid #3b82f6; border-radius: var(--radius-lg); padding: 18px;
     }
     .anc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .badge { font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-weight: 700; }
+    .badge { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-weight: 700; }
     .pulse { animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
     .anc-number {
-      font-size: 20px; font-weight: 800; letter-spacing: 1px; margin-bottom: 12px; color: #38bdf8;
-      background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: var(--radius-sm); text-align: center;
+      font-size: 22px; font-weight: 800; letter-spacing: 1px; margin-bottom: 14px; color: #38bdf8;
+      background: rgba(0, 0, 0, 0.4); padding: 10px 14px; border-radius: var(--radius-sm); text-align: center;
     }
     .anc-code-box {
-      background: rgba(16, 185, 129, 0.15); border: 1px dashed #10b981; padding: 10px; border-radius: var(--radius-sm);
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+      background: rgba(16, 185, 129, 0.15); border: 1px dashed #10b981; padding: 12px; border-radius: var(--radius-sm);
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
     }
-    .anc-code-box strong { font-size: 18px; color: #34d399; letter-spacing: 2px; }
+    .anc-code-box strong { font-size: 20px; color: #34d399; letter-spacing: 3px; }
     .anc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .btn {
-      border: none; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700;
+      border: none; padding: 12px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700;
       cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 16px var(--accent-glow); }
     .btn-primary:active { transform: scale(0.98); }
     .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
     .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .btn-block { width: 100%; padding: 12px; font-size: 14px; }
-    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-block { width: 100%; padding: 14px; font-size: 14px; }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
 
-    .deposit-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; }
-    .dep-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; }
-    .input-group { margin-bottom: 14px; }
+    /* Deposit & Cards */
+    .deposit-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; }
+    .dep-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+    .input-group { margin-bottom: 16px; }
     .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
     .input-group input {
-      width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 12px;
-      border-radius: var(--radius-md); color: var(--text-primary); font-size: 15px; font-weight: 700; outline: none;
+      width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 14px;
+      border-radius: var(--radius-md); color: var(--text-primary); font-size: 16px; font-weight: 700; outline: none;
     }
     .input-group input:focus { border-color: var(--accent); }
 
     .quick-amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
     .quick-amounts button {
       background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary);
-      padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
+      padding: 8px 6px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;
     }
 
     .card-display {
-      background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px; box-shadow: var(--card-shadow);
+      background: linear-gradient(135deg, #1e293b, #090d16); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md); padding: 18px; margin-bottom: 18px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     }
-    .card-chip { width: 32px; height: 24px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 4px; margin-bottom: 12px; }
-    .card-num { font-size: 16px; font-weight: 800; letter-spacing: 2px; color: white; margin-bottom: 10px; }
+    .card-chip {
+      width: 36px; height: 26px; background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-radius: 6px; margin-bottom: 14px;
+    }
+    .card-num { font-size: 17px; font-weight: 800; letter-spacing: 2px; color: white; margin-bottom: 12px; }
     .card-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); }
-    .copy-btn { background: rgba(255, 255, 255, 0.1); border: none; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+    .copy-btn { background: rgba(255, 255, 255, 0.12); border: none; color: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
 
     .upload-zone {
-      border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: var(--radius-md); padding: 18px;
-      text-align: center; cursor: pointer; margin-bottom: 16px; transition: all 0.2s;
+      border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: var(--radius-md); padding: 20px;
+      text-align: center; cursor: pointer; margin-bottom: 18px; transition: all 0.2s;
     }
     .upload-zone:hover { border-color: var(--accent); background: var(--accent-light); }
-    .upload-icon { font-size: 28px; }
-    .upload-zone p { font-size: 12px; font-weight: 600; margin: 4px 0; }
-    .upload-zone small { font-size: 10px; color: var(--text-muted); }
-    #uploadPreview img { max-height: 120px; border-radius: var(--radius-sm); margin-bottom: 6px; }
+    .upload-icon-img { width: 36px; height: 36px; margin-bottom: 6px; opacity: 0.8; }
+    .upload-zone p { font-size: 13px; font-weight: 600; margin: 4px 0; }
+    .upload-zone small { font-size: 11px; color: var(--text-muted); }
+    #uploadPreview img { max-height: 140px; border-radius: var(--radius-sm); margin-bottom: 8px; }
 
+    /* Profile */
     .profile-card {
       background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
-      padding: 20px; text-align: center; margin-bottom: 14px;
+      padding: 22px; text-align: center; margin-bottom: 16px;
     }
     .profile-avatar-big {
-      width: 60px; height: 60px; margin: 0 auto 10px auto; border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 28px;
+      width: 68px; height: 68px; margin: 0 auto 12px auto; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #d946ef); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 25px var(--accent-glow);
     }
+    .profile-avatar-big img { width: 44px; height: 44px; }
     .profile-balance-box {
-      margin-top: 14px; background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);
-      display: flex; flex-direction: column; gap: 4px; align-items: center;
+      margin-top: 16px; background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-md);
+      display: flex; flex-direction: column; gap: 6px; align-items: center;
     }
     .profile-balance-box span { font-size: 11px; color: var(--text-muted); }
-    .profile-balance-box h2 { font-size: 22px; font-weight: 800; color: #38bdf8; }
+    .profile-balance-box h2 { font-size: 24px; font-weight: 800; color: #38bdf8; }
 
     .referral-box {
       background: linear-gradient(135deg, #1e1b4b, #312e81); border: 1px solid rgba(99, 102, 241, 0.3);
-      border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px;
+      border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px;
     }
-    .ref-head { font-weight: 700; margin-bottom: 4px; }
-    .referral-box p { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
-    .ref-link-box { display: flex; gap: 6px; }
+    .ref-head { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .referral-box p { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+    .ref-link-box { display: flex; gap: 8px; }
     .ref-link-box input {
       flex: 1; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm); padding: 8px 10px; color: white; font-size: 11px;
+      border-radius: var(--radius-sm); padding: 10px 12px; color: white; font-size: 12px;
     }
 
-    .menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .menu-list { display: flex; flex-direction: column; gap: 10px; }
     .menu-item {
       background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      padding: 14px; display: flex; justify-content: space-between; align-items: center; text-decoration: none;
+      padding: 16px; display: flex; justify-content: space-between; align-items: center; text-decoration: none;
       color: var(--text-primary); font-weight: 600; font-size: 13px;
     }
 
-    .order-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+    .order-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; }
     .order-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
-    .order-title { font-weight: 700; font-size: 13px; }
+    .order-title { font-weight: 700; font-size: 14px; }
     .order-date { color: var(--text-muted); font-size: 11px; }
 
+    /* Bottom Nav */
     .bottom-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 540px; height: 65px;
-      background: rgba(11, 15, 25, 0.92); backdrop-filter: blur(16px); border-top: 1px solid var(--border-color);
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 68px;
+      background: rgba(8, 12, 21, 0.92); backdrop-filter: blur(18px); border-top: 1px solid var(--border-color);
       display: flex; align-items: center; justify-content: space-around; z-index: 100; padding-bottom: env(safe-area-inset-bottom);
     }
     .nav-item {
       background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column;
-      align-items: center; gap: 2px; cursor: pointer; padding: 6px 12px; border-radius: 12px; transition: all 0.2s;
+      align-items: center; gap: 4px; cursor: pointer; padding: 6px 12px; border-radius: 12px; transition: all 0.2s;
     }
-    .nav-icon { font-size: 18px; }
+    .nav-icon-img { width: 22px; height: 22px; object-fit: contain; filter: grayscale(1) opacity(0.6); transition: all 0.2s; }
     .nav-label { font-size: 10px; font-weight: 700; }
-    .nav-item.active { color: var(--accent); }
-    .nav-item.active .nav-icon { transform: translateY(-2px); }
+    .nav-item.active { color: #818cf8; }
+    .nav-item.active .nav-icon-img { filter: grayscale(0) opacity(1); transform: translateY(-2px); }
 
+    /* Modals */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; }
     .modal.active { display: block; }
-    .modal-backdrop { position: absolute; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
+    .modal-backdrop { position: absolute; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); }
     .modal-sheet {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 540px;
-      background: var(--bg-secondary); border-top-left-radius: 24px; border-top-right-radius: 24px;
-      padding: 20px; border-top: 1px solid var(--border-color); animation: slideUp 0.25s ease-out;
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px;
+      background: var(--bg-secondary); border-top-left-radius: 26px; border-top-right-radius: 26px;
+      padding: 22px; border-top: 1px solid var(--border-color); animation: slideUp 0.25s ease-out;
       max-height: 85vh; overflow-y: auto;
     }
     @keyframes slideUp { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .close-btn { background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .close-btn { background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
 
     .channel-option {
       background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-      padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer;
+      padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer;
     }
     .channel-option:hover { border-color: var(--accent); }
-    .stock-badge { display: inline-block; font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
-    .opt-price { font-size: 14px; font-weight: 800; color: #38bdf8; }
+    .stock-badge { display: inline-block; font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.15); padding: 2px 8px; border-radius: 4px; margin-top: 4px; }
+    .opt-price { font-size: 15px; font-weight: 800; color: #38bdf8; }
 
-    .gemini-info ul { padding-left: 18px; margin: 12px 0; font-size: 12px; color: var(--text-secondary); }
+    .gemini-info ul { padding-left: 20px; margin: 14px 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
     .price-highlight {
-      background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+      background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-md);
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
     }
     .price-highlight strong { font-size: 18px; color: #38bdf8; }
 
     .toast {
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(50px);
+      position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(50px);
       background: rgba(19, 27, 46, 0.95); border: 1px solid var(--accent); color: white;
-      padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      padding: 12px 20px; border-radius: 20px; font-size: 13px; font-weight: 600;
       opacity: 0; transition: all 0.25s ease; z-index: 300; white-space: nowrap; pointer-events: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .hidden { display: none !important; }
-    .loading-spinner { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; }
+    .loading-spinner { text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px; }
   </style>
 </head>
 <body>
@@ -334,7 +356,9 @@
     <!-- Header -->
     <header class="app-header">
       <div class="user-pill">
-        <div class="user-avatar" id="userAvatar">👤</div>
+        <div class="user-avatar">
+          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="User">
+        </div>
         <div class="user-meta">
           <span class="user-name" id="userName">Foydalanuvchi</span>
           <span class="user-id" id="userId">ID: ---</span>
@@ -353,9 +377,13 @@
       <!-- TAB 1: ASOSIY DO'KON (SHOP) -->
       <section id="tab-home" class="tab-pane active">
         <div class="hero-card">
-          <div class="hero-tag">🔥 Ommabop xizmatlar</div>
+          <img class="hero-bg-art" src="https://cdn-icons-png.flaticon.com/512/9422/9422896.png" alt="art">
+          <div class="hero-tag">
+            <img src="https://cdn-icons-png.flaticon.com/512/785/785116.png" width="14" height="14" alt="fire">
+            Ommabop xizmatlar
+          </div>
           <h2>Virtual Nomer & Raqamli Xizmatlar</h2>
-          <p>Tezkor yetkazish, arzon narxlar va 100% kafolat</p>
+          <p>Tezkor yetkazish, eng arzon narxlar va 100% kafolat</p>
           <div class="hero-quick-stats">
             <div><b id="statChannels">0</b><span>Tayyor kanal</span></div>
             <div><b id="statNumbers">20+</b><span>Davlatlar</span></div>
@@ -368,50 +396,62 @@
         </div>
 
         <div class="services-grid">
+          <!-- 1. Virtual Nomerlar -->
           <div class="service-card" onclick="openNumberModal()">
-            <div class="card-icon phone-gradient">📱</div>
+            <div class="card-icon-wrapper phone-bg">
+              <img class="card-icon-img" src="https://cdn-icons-png.flaticon.com/512/408/408707.png" alt="SIM">
+            </div>
             <div class="card-body">
               <h4>Virtual Nomerlar</h4>
-              <p>Telegram, WhatsApp va boshqalar</p>
+              <p>Telegram, WhatsApp, Google va boshqalar</p>
               <div class="card-foot">
                 <span class="price-chip">Arzon narxlar</span>
-                <span class="arrow-btn">→</span>
+                <span style="color:var(--text-muted); font-size:16px;">→</span>
               </div>
             </div>
           </div>
 
+          <!-- 2. Tayyor Kanallar -->
           <div class="service-card" onclick="openChannelsModal()">
-            <div class="card-icon yt-gradient">▶️</div>
+            <div class="card-icon-wrapper yt-bg">
+              <img class="card-icon-img" src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
+            </div>
             <div class="card-body">
               <h4>Tayyor Kanallar</h4>
-              <p>Eski (2006-2019) YouTube kanallar</p>
+              <p>Eski (2006–2019) ishonchli YouTube kanallar</p>
               <div class="card-foot">
                 <span class="price-chip" id="cardYtPrice">120,000 so'm dan</span>
-                <span class="arrow-btn">→</span>
+                <span style="color:var(--text-muted); font-size:16px;">→</span>
               </div>
             </div>
           </div>
 
+          <!-- 3. Gemini Advanced -->
           <div class="service-card" onclick="openGeminiModal()">
-            <div class="card-icon gemini-gradient">✨</div>
+            <div class="card-icon-wrapper gemini-bg">
+              <img class="card-icon-img" src="https://cdn-icons-png.flaticon.com/512/11865/11865326.png" alt="Gemini">
+            </div>
             <div class="card-body">
               <h4>Gemini Advanced</h4>
               <p>Google AI Pro obunasi (shaxsiy akkauntga)</p>
               <div class="card-foot">
                 <span class="price-chip" id="cardGemPrice">50,000 so'm</span>
-                <span class="arrow-btn">→</span>
+                <span style="color:var(--text-muted); font-size:16px;">→</span>
               </div>
             </div>
           </div>
 
+          <!-- 4. 2-Funksiya Ulanish -->
           <div class="service-card" onclick="openTwoFuncModal()">
-            <div class="card-icon tool-gradient">🛠</div>
+            <div class="card-icon-wrapper tool-bg">
+              <img class="card-icon-img" src="https://cdn-icons-png.flaticon.com/512/2885/2885417.png" alt="Security">
+            </div>
             <div class="card-body">
               <h4>2-Funksiya Ulanish</h4>
               <p>YouTube 2-bosqich tasdiqlash xizmati</p>
               <div class="card-foot">
                 <span class="price-chip" id="cardTwoFuncPrice">100,000 so'm</span>
-                <span class="arrow-btn">→</span>
+                <span style="color:var(--text-muted); font-size:16px;">→</span>
               </div>
             </div>
           </div>
@@ -426,12 +466,24 @@
 
         <div class="sub-head">1. Tarmoqni tanlang:</div>
         <div class="network-chips" id="networkChips">
-          <button class="net-chip active" data-service="tg">📞 Telegram</button>
-          <button class="net-chip" data-service="wa">💬 WhatsApp</button>
-          <button class="net-chip" data-service="go">🌐 Google</button>
-          <button class="net-chip" data-service="ig">📸 Instagram</button>
-          <button class="net-chip" data-service="dt">🎵 TikTok</button>
-          <button class="net-chip" data-service="vk">🟦 VKontakte</button>
+          <button class="net-chip active" data-service="tg">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram"> Telegram
+          </button>
+          <button class="net-chip" data-service="wa">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp"> WhatsApp
+          </button>
+          <button class="net-chip" data-service="go">
+            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google"> Google
+          </button>
+          <button class="net-chip" data-service="ig">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram"> Instagram
+          </button>
+          <button class="net-chip" data-service="dt">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok"> TikTok
+          </button>
+          <button class="net-chip" data-service="vk">
+            <img src="https://cdn-icons-png.flaticon.com/512/145/145813.png" alt="VK"> VKontakte
+          </button>
         </div>
 
         <div class="sub-head">2. Davlatni tanlang:</div>
@@ -439,7 +491,7 @@
           <input type="text" id="countrySearch" placeholder="Davlatni qidirish..." oninput="filterCountries()">
         </div>
         <div class="country-list" id="countryList">
-          <div class="loading-spinner">Yuklanmoqda...</div>
+          <div class="loading-spinner">Narxlar hisoblanmoqda...</div>
         </div>
 
         <div id="activeNumberCard" class="active-number-card hidden">
@@ -502,7 +554,7 @@
           <div class="upload-zone" onclick="document.getElementById('receiptFileInput').click()">
             <input type="file" id="receiptFileInput" accept="image/*,.pdf" style="display:none" onchange="previewReceipt(this)">
             <div id="uploadPlaceholder">
-              <span class="upload-icon">📸</span>
+              <img class="upload-icon-img" src="https://cdn-icons-png.flaticon.com/512/685/685655.png" alt="camera">
               <p>To'lov chekini (screenshot) tanlang</p>
               <small>JPEG, PNG, PDF</small>
             </div>
@@ -521,7 +573,9 @@
       <!-- TAB 5: PROFIL (PROFILE) -->
       <section id="tab-profile" class="tab-pane">
         <div class="profile-card">
-          <div class="profile-avatar-big" id="profileBigAvatar">👤</div>
+          <div class="profile-avatar-big">
+            <img src="https://cdn-icons-png.flaticon.com/512/9408/9408175.png" alt="User">
+          </div>
           <h3 id="profileName">Foydalanuvchi</h3>
           <p id="profileId">ID: ---</p>
           
@@ -534,7 +588,8 @@
 
         <div class="referral-box">
           <div class="ref-head">
-            <span>🎁 5% Referal Bonusi</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" width="18" height="18" alt="gift">
+            5% Referal Bonusi
           </div>
           <p>Do'stingizni taklif qiling, uning har bir to'lovidan 5% hisobingizga tushadi!</p>
           <div class="ref-link-box">
@@ -545,11 +600,17 @@
 
         <div class="menu-list">
           <a class="menu-item" href="#" onclick="openSupport(); return false;">
-            <span>💬 Qo'llab-quvvatlash / Admin</span>
+            <span style="display:flex; align-items:center; gap:8px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/9068/9068642.png" width="20" height="20" alt="support">
+              Qo'llab-quvvatlash / Admin
+            </span>
             <span>→</span>
           </a>
           <a class="menu-item" href="#" onclick="switchTab('tab-orders'); return false;">
-            <span>📦 Xaridlar tarixi</span>
+            <span style="display:flex; align-items:center; gap:8px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/2897/2897785.png" width="20" height="20" alt="history">
+              Xaridlar tarixi
+            </span>
             <span>→</span>
           </a>
         </div>
@@ -560,23 +621,23 @@
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
       <button class="nav-item active" onclick="switchTab('tab-home')">
-        <span class="nav-icon">🏪</span>
+        <img class="nav-icon-img" src="https://cdn-icons-png.flaticon.com/512/1040/1040254.png" alt="Shop">
         <span class="nav-label">Do'kon</span>
       </button>
       <button class="nav-item" onclick="switchTab('tab-numbers')">
-        <span class="nav-icon">📱</span>
+        <img class="nav-icon-img" src="https://cdn-icons-png.flaticon.com/512/545/545245.png" alt="SIM">
         <span class="nav-label">Nomer</span>
       </button>
       <button class="nav-item" onclick="switchTab('tab-deposit')">
-        <span class="nav-icon">💳</span>
+        <img class="nav-icon-img" src="https://cdn-icons-png.flaticon.com/512/633/633611.png" alt="Pay">
         <span class="nav-label">To'lov</span>
       </button>
       <button class="nav-item" onclick="switchTab('tab-orders')">
-        <span class="nav-icon">📦</span>
+        <img class="nav-icon-img" src="https://cdn-icons-png.flaticon.com/512/3500/3500833.png" alt="Orders">
         <span class="nav-label">Buyurtma</span>
       </button>
       <button class="nav-item" onclick="switchTab('tab-profile')">
-        <span class="nav-icon">👤</span>
+        <img class="nav-icon-img" src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" alt="User">
         <span class="nav-label">Kabinet</span>
       </button>
     </nav>
@@ -586,14 +647,17 @@
       <div class="modal-backdrop" onclick="closeModal('modalChannels')"></div>
       <div class="modal-sheet">
         <div class="modal-header">
-          <h3>🔴 Tayyor YouTube Kanallar</h3>
+          <h3 style="display:flex; align-items:center; gap:8px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="22" height="22" alt="yt">
+            Tayyor YouTube Kanallar
+          </h3>
           <button class="close-btn" onclick="closeModal('modalChannels')">✕</button>
         </div>
         <div class="modal-body">
           <div class="channel-option" onclick="buyChannel('y1')">
             <div>
               <b>2006 - 2009 yilgi Kanallar</b>
-              <p>Eski, ishonchli YouTube akkaunt</p>
+              <p style="font-size:12px; color:var(--text-muted);">Eski, ishonchli YouTube akkaunt</p>
               <small class="stock-badge" id="stockY1">0 ta qoldi</small>
             </div>
             <div class="opt-price" id="priceY1">190,000 so'm</div>
@@ -602,7 +666,7 @@
           <div class="channel-option" onclick="buyChannel('y2')">
             <div>
               <b>2010 - 2019 yilgi Kanallar</b>
-              <p>Ommabop yillar, toza tarix</p>
+              <p style="font-size:12px; color:var(--text-muted);">Ommabop yillar, toza tarix</p>
               <small class="stock-badge" id="stockY2">0 ta qoldi</small>
             </div>
             <div class="opt-price" id="priceY2">120,000 so'm</div>
@@ -616,7 +680,10 @@
       <div class="modal-backdrop" onclick="closeModal('modalGemini')"></div>
       <div class="modal-sheet">
         <div class="modal-header">
-          <h3>✨ Gemini Advanced Obunasi</h3>
+          <h3 style="display:flex; align-items:center; gap:8px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/11865/11865326.png" width="22" height="22" alt="gemini">
+            Gemini Advanced Obunasi
+          </h3>
           <button class="close-btn" onclick="closeModal('modalGemini')">✕</button>
         </div>
         <div class="modal-body">
@@ -624,8 +691,8 @@
             <p>🤖 Google Gemini Advanced imkoniyatlarini o'z shaxsiy Google akkauntingizda faollashtiring.</p>
             <ul>
               <li>⚡️ Gemini 1.5 Pro / Ultra tezkor model</li>
-              <li>📁 2TB Google One Cloud xotira (agar tarifda bo'lsa)</li>
-              <li>🔗 Xarid qilganingizdan so'ng adminga buyurtma tushadi va sizga faollashtirish havolasi beriladi.</li>
+              <li>📁 2TB Google One Cloud xotira</li>
+              <li>🔗 Xarid qilgach adminga tushadi va sizga faollashtirish havolasi beriladi.</li>
             </ul>
             <div class="price-highlight">
               <span>Narxi:</span>
@@ -642,11 +709,14 @@
       <div class="modal-backdrop" onclick="closeModal('modalTwoFunc')"></div>
       <div class="modal-sheet">
         <div class="modal-header">
-          <h3>🛠 2-Funksiya Ulanish</h3>
+          <h3 style="display:flex; align-items:center; gap:8px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/2885/2885417.png" width="22" height="22" alt="tool">
+            2-Funksiya Ulanish
+          </h3>
           <button class="close-btn" onclick="closeModal('modalTwoFunc')">✕</button>
         </div>
         <div class="modal-body">
-          <p>YouTube kanalingiz uchun 2-bosqichli funksiyalarni yoqish xizmati.</p>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">YouTube kanalingiz uchun 2-bosqichli funksiyalarni yoqish xizmati.</p>
           <div class="input-group">
             <label>Kanal ssilkasi yoki login ma'lumoti:</label>
             <input type="text" id="twoFuncInput" placeholder="https://youtube.com/@kanalingiz">
@@ -805,14 +875,20 @@
         if (c.price > 0) {
           html += `
             <div class="country-row" onclick="buyNumber('${selectedNetwork}', '${c.id}', ${c.price}, '${c.name}')">
-              <span class="country-title">${c.name}</span>
+              <span class="country-title">
+                <img src="https://cdn-icons-png.flaticon.com/512/814/814587.png" width="18" height="18" alt="flag">
+                ${c.name}
+              </span>
               <span class="country-price">${c.price.toLocaleString()} so'm</span>
             </div>
           `;
         } else {
           html += `
             <div class="country-row" style="opacity: 0.5; cursor: not-allowed;">
-              <span class="country-title">${c.name}</span>
+              <span class="country-title">
+                <img src="https://cdn-icons-png.flaticon.com/512/814/814587.png" width="18" height="18" alt="flag">
+                ${c.name}
+              </span>
               <span class="country-out">Mavjud emas</span>
             </div>
           `;
