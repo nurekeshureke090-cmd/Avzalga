@@ -18,7 +18,7 @@ from bson import ObjectId
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1']
 
-TOKEN = os.environ.get('BOT_TOKEN', '8904483870:AAH9MxRyniZaBDBpykZrt70BK95x4vrOkB8')
+TOKEN = os.environ.get('BOT_TOKEN', '9135967685:AAFt935w1f7sKsKdX9i1tpBOyEmqQnZILlU')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', 8467707826))
 GRIZZLY_API_KEY = os.environ.get('GRIZZLY_API_KEY', '3335af0d250efb73bdc40ebf82fa42dd')
 MONGO_URL = os.environ.get('MONGO_URL', "mongodb+srv://nurekeshureke090_db_user:qKFmlTnxjnAe27Gi@cluster0.1dcdbiw.mongodb.net/?appName=Cluster0")
