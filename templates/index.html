@@ -8,7 +8,326 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131b2e;
+      --bg-tertiary: #1b2640;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-light: rgba(99, 102, 241, 0.15);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 540px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+      background-color: var(--bg-primary);
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .user-pill { display: flex; align-items: center; gap: 10px; }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+    .user-meta { display: flex; flex-direction: column; }
+    .user-name { font-weight: 700; font-size: 14px; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-id { font-size: 11px; color: var(--text-muted); }
+
+    .balance-badge {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-secondary); border: 1px solid var(--border-color);
+      padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .balance-badge:hover { border-color: var(--accent); background: var(--bg-tertiary); }
+    .balance-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+    .balance-val { font-weight: 700; font-size: 13px; color: #38bdf8; }
+    .plus-icon {
+      background: var(--accent); color: white; width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
+    }
+
+    .main-content { flex: 1; padding: 16px 16px 85px 16px; }
+    .tab-pane { display: none; animation: fadeIn 0.25s ease-out; }
+    .tab-pane.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      border-radius: var(--radius-lg); padding: 20px; color: white; margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 15px 35px -10px rgba(79, 70, 229, 0.4);
+    }
+    .hero-tag {
+      display: inline-block; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);
+      padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-bottom: 10px;
+    }
+    .hero-card h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .hero-card p { font-size: 12px; color: rgba(255, 255, 255, 0.8); margin-bottom: 16px; }
+    .hero-quick-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 12px;
+    }
+    .hero-quick-stats div { display: flex; flex-direction: column; }
+    .hero-quick-stats b { font-size: 16px; font-weight: 800; }
+    .hero-quick-stats span { font-size: 10px; color: rgba(255, 255, 255, 0.7); }
+
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .section-head h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+
+    .services-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .service-card {
+      background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      padding: 14px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s;
+    }
+    .service-card:hover { border-color: rgba(99, 102, 241, 0.4); background: var(--bg-tertiary); }
+    .service-card:active { transform: scale(0.98); }
+
+    .card-icon {
+      width: 50px; height: 50px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+    }
+    .phone-gradient { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+    .yt-gradient { background: linear-gradient(135deg, #dc2626, #f87171); }
+    .gemini-gradient { background: linear-gradient(135deg, #7c3aed, #c084fc); }
+    .tool-gradient { background: linear-gradient(135deg, #059669, #34d399); }
+
+    .card-body { flex: 1; }
+    .card-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .card-body p { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; }
+    .price-chip { font-size: 12px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 6px; }
+    .arrow-btn { font-size: 16px; color: var(--text-muted); }
+
+    .sub-head { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin: 12px 0 8px 0; }
+    .network-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+    .network-chips::-webkit-scrollbar { display: none; }
+    .net-chip {
+      background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary);
+      padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s;
+    }
+    .net-chip.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 12px rgba(99, 102, 241, 0.5); }
+
+    .search-box input {
+      width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color);
+      padding: 10px 14px; border-radius: var(--radius-md); color: var(--text-primary); font-size: 13px; outline: none;
+    }
+    .search-box input:focus { border-color: var(--accent); }
+
+    .country-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .country-row {
+      background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.15s;
+    }
+    .country-row:hover { background: var(--bg-tertiary); border-color: var(--accent); }
+    .country-title { font-size: 14px; font-weight: 600; }
+    .country-price { font-weight: 700; color: #38bdf8; font-size: 13px; }
+    .country-out { color: var(--text-muted); font-size: 12px; }
+
+    .active-number-card {
+      margin-top: 16px; background: linear-gradient(135deg, #1e1b4b, #172554);
+      border: 1px solid #3b82f6; border-radius: var(--radius-lg); padding: 16px;
+    }
+    .anc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .badge { font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-weight: 700; }
+    .pulse { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .anc-number {
+      font-size: 20px; font-weight: 800; letter-spacing: 1px; margin-bottom: 12px; color: #38bdf8;
+      background: rgba(0, 0, 0, 0.3); padding: 8px 12px; border-radius: var(--radius-sm); text-align: center;
+    }
+    .anc-code-box {
+      background: rgba(16, 185, 129, 0.15); border: 1px dashed #10b981; padding: 10px; border-radius: var(--radius-sm);
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    .anc-code-box strong { font-size: 18px; color: #34d399; letter-spacing: 2px; }
+    .anc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .btn {
+      border: none; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-block { width: 100%; padding: 12px; font-size: 14px; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .deposit-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; }
+    .dep-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; }
+    .input-group { margin-bottom: 14px; }
+    .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .input-group input {
+      width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color); padding: 12px;
+      border-radius: var(--radius-md); color: var(--text-primary); font-size: 15px; font-weight: 700; outline: none;
+    }
+    .input-group input:focus { border-color: var(--accent); }
+
+    .quick-amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+    .quick-amounts button {
+      background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary);
+      padding: 6px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+
+    .card-display {
+      background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px; box-shadow: var(--card-shadow);
+    }
+    .card-chip { width: 32px; height: 24px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 4px; margin-bottom: 12px; }
+    .card-num { font-size: 16px; font-weight: 800; letter-spacing: 2px; color: white; margin-bottom: 10px; }
+    .card-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); }
+    .copy-btn { background: rgba(255, 255, 255, 0.1); border: none; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+
+    .upload-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: var(--radius-md); padding: 18px;
+      text-align: center; cursor: pointer; margin-bottom: 16px; transition: all 0.2s;
+    }
+    .upload-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+    .upload-icon { font-size: 28px; }
+    .upload-zone p { font-size: 12px; font-weight: 600; margin: 4px 0; }
+    .upload-zone small { font-size: 10px; color: var(--text-muted); }
+    #uploadPreview img { max-height: 120px; border-radius: var(--radius-sm); margin-bottom: 6px; }
+
+    .profile-card {
+      background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+      padding: 20px; text-align: center; margin-bottom: 14px;
+    }
+    .profile-avatar-big {
+      width: 60px; height: 60px; margin: 0 auto 10px auto; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 28px;
+    }
+    .profile-balance-box {
+      margin-top: 14px; background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);
+      display: flex; flex-direction: column; gap: 4px; align-items: center;
+    }
+    .profile-balance-box span { font-size: 11px; color: var(--text-muted); }
+    .profile-balance-box h2 { font-size: 22px; font-weight: 800; color: #38bdf8; }
+
+    .referral-box {
+      background: linear-gradient(135deg, #1e1b4b, #312e81); border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px;
+    }
+    .ref-head { font-weight: 700; margin-bottom: 4px; }
+    .referral-box p { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+    .ref-link-box { display: flex; gap: 6px; }
+    .ref-link-box input {
+      flex: 1; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm); padding: 8px 10px; color: white; font-size: 11px;
+    }
+
+    .menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .menu-item {
+      background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      padding: 14px; display: flex; justify-content: space-between; align-items: center; text-decoration: none;
+      color: var(--text-primary); font-weight: 600; font-size: 13px;
+    }
+
+    .order-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+    .order-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+    .order-title { font-weight: 700; font-size: 13px; }
+    .order-date { color: var(--text-muted); font-size: 11px; }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 540px; height: 65px;
+      background: rgba(11, 15, 25, 0.92); backdrop-filter: blur(16px); border-top: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: space-around; z-index: 100; padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column;
+      align-items: center; gap: 2px; cursor: pointer; padding: 6px 12px; border-radius: 12px; transition: all 0.2s;
+    }
+    .nav-icon { font-size: 18px; }
+    .nav-label { font-size: 10px; font-weight: 700; }
+    .nav-item.active { color: var(--accent); }
+    .nav-item.active .nav-icon { transform: translateY(-2px); }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; }
+    .modal.active { display: block; }
+    .modal-backdrop { position: absolute; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
+    .modal-sheet {
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 540px;
+      background: var(--bg-secondary); border-top-left-radius: 24px; border-top-right-radius: 24px;
+      padding: 20px; border-top: 1px solid var(--border-color); animation: slideUp 0.25s ease-out;
+      max-height: 85vh; overflow-y: auto;
+    }
+    @keyframes slideUp { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .close-btn { background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
+
+    .channel-option {
+      background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; cursor: pointer;
+    }
+    .channel-option:hover { border-color: var(--accent); }
+    .stock-badge { display: inline-block; font-size: 10px; color: #38bdf8; background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
+    .opt-price { font-size: 14px; font-weight: 800; color: #38bdf8; }
+
+    .gemini-info ul { padding-left: 18px; margin: 12px 0; font-size: 12px; color: var(--text-secondary); }
+    .price-highlight {
+      background: var(--bg-tertiary); padding: 12px; border-radius: var(--radius-md);
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .price-highlight strong { font-size: 18px; color: #38bdf8; }
+
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(50px);
+      background: rgba(19, 27, 46, 0.95); border: 1px solid var(--accent); color: white;
+      padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      opacity: 0; transition: all 0.25s ease; z-index: 300; white-space: nowrap; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hidden { display: none !important; }
+    .loading-spinner { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px; }
+  </style>
 </head>
 <body>
   <div id="app">
@@ -33,7 +352,6 @@
 
       <!-- TAB 1: ASOSIY DO'KON (SHOP) -->
       <section id="tab-home" class="tab-pane active">
-        <!-- Banner Carousel -->
         <div class="hero-card">
           <div class="hero-tag">🔥 Ommabop xizmatlar</div>
           <h2>Virtual Nomer & Raqamli Xizmatlar</h2>
@@ -45,12 +363,10 @@
           </div>
         </div>
 
-        <!-- Section Title -->
         <div class="section-head">
           <h3>Xizmatlar katalogi</h3>
         </div>
 
-        <!-- Grid of Services -->
         <div class="services-grid">
           <div class="service-card" onclick="openNumberModal()">
             <div class="card-icon phone-gradient">📱</div>
@@ -108,7 +424,6 @@
           <h3>📱 Virtual Nomer Xarid Qilish</h3>
         </div>
 
-        <!-- Step 1: Select Service -->
         <div class="sub-head">1. Tarmoqni tanlang:</div>
         <div class="network-chips" id="networkChips">
           <button class="net-chip active" data-service="tg">📞 Telegram</button>
@@ -119,7 +434,6 @@
           <button class="net-chip" data-service="vk">🟦 VKontakte</button>
         </div>
 
-        <!-- Step 2: Select Country -->
         <div class="sub-head">2. Davlatni tanlang:</div>
         <div class="search-box">
           <input type="text" id="countrySearch" placeholder="Davlatni qidirish..." oninput="filterCountries()">
@@ -128,7 +442,6 @@
           <div class="loading-spinner">Yuklanmoqda...</div>
         </div>
 
-        <!-- Active Number Box (If bought) -->
         <div id="activeNumberCard" class="active-number-card hidden">
           <div class="anc-header">
             <span class="badge pulse">⏳ SMS kutilmoqda</span>
@@ -352,6 +665,401 @@
 
   </div>
 
-  <script src="/static/js/app.js"></script>
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand();
+      tg.enableClosingConfirmation();
+    }
+
+    let currentUser = { id: 0, first_name: "Foydalanuvchi", username: "", balance: 0, skidka: false };
+    let storeData = {
+      card: "8600 0000 0000 0000", admin: "@SizningUserneyim",
+      p_y1: 190000, p_y2: 120000, p_2func: 100000, p_gemini: 50000,
+      stock_y1: 0, stock_y2: 0, bot_username: "prosmmmarket_bot"
+    };
+
+    let selectedNetwork = "tg";
+    let countriesData = [];
+    let activeNumberInterval = null;
+    let activeNumberId = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initTelegramUser();
+      loadInitialData();
+      setupNetworkChips();
+    });
+
+    function initTelegramUser() {
+      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const u = tg.initDataUnsafe.user;
+        currentUser.id = u.id;
+        currentUser.first_name = u.first_name || "Foydalanuvchi";
+        currentUser.username = u.username || "";
+      } else {
+        currentUser.id = 8467707826;
+        currentUser.first_name = "Test User";
+      }
+      document.getElementById("userName").innerText = currentUser.first_name;
+      document.getElementById("userId").innerText = `ID: ${currentUser.id}`;
+      document.getElementById("profileName").innerText = currentUser.first_name;
+      document.getElementById("profileId").innerText = `ID: ${currentUser.id}`;
+    }
+
+    async function loadInitialData() {
+      try {
+        const res = await fetch(`/api/user_data?uid=${currentUser.id}`);
+        const data = await res.json();
+        if (data.ok) {
+          currentUser.balance = data.user.balance || 0;
+          currentUser.skidka = data.user.skidka || false;
+          storeData = Object.assign(storeData, data.store);
+          updateBalanceUI();
+          updateStorePricesUI();
+        }
+      } catch (e) { console.error("Xato:", e); }
+    }
+
+    function updateBalanceUI() {
+      const formatted = `${currentUser.balance.toLocaleString()} so'm`;
+      document.getElementById("headerBalance").innerText = formatted;
+      document.getElementById("profileBalance").innerText = formatted;
+      const botName = storeData.bot_username || "bot";
+      document.getElementById("refLinkInput").value = `https://t.me/${botName}?start=${currentUser.id}`;
+    }
+
+    function updateStorePricesUI() {
+      document.getElementById("cardYtPrice").innerText = `${storeData.p_y2.toLocaleString()} so'm dan`;
+      document.getElementById("cardGemPrice").innerText = `${storeData.p_gemini.toLocaleString()} so'm`;
+      document.getElementById("cardTwoFuncPrice").innerText = `${storeData.p_2func.toLocaleString()} so'm`;
+      document.getElementById("adminCardNumber").innerText = storeData.card;
+      document.getElementById("stockY1").innerText = `${storeData.stock_y1} ta qoldi`;
+      document.getElementById("stockY2").innerText = `${storeData.stock_y2} ta qoldi`;
+      document.getElementById("statChannels").innerText = storeData.stock_y1 + storeData.stock_y2;
+
+      const discountY1 = currentUser.skidka ? (storeData.p_y1 - 15000) : storeData.p_y1;
+      const discountY2 = currentUser.skidka ? (storeData.p_y2 - 15000) : storeData.p_y2;
+      document.getElementById("priceY1").innerText = `${discountY1.toLocaleString()} so'm`;
+      document.getElementById("priceY2").innerText = `${discountY2.toLocaleString()} so'm`;
+      document.getElementById("modalGemPrice").innerText = `${storeData.p_gemini.toLocaleString()} so'm`;
+      document.getElementById("modalTwoFuncPrice").innerText = `${storeData.p_2func.toLocaleString()} so'm`;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-pane").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+      const targetTab = document.getElementById(tabId);
+      if (targetTab) targetTab.classList.add("active");
+
+      const navMap = { "tab-home": 0, "tab-numbers": 1, "tab-deposit": 2, "tab-orders": 3, "tab-profile": 4 };
+      const navItems = document.querySelectorAll(".nav-item");
+      if (navMap[tabId] !== undefined && navItems[navMap[tabId]]) {
+        navItems[navMap[tabId]].classList.add("active");
+      }
+      if (tabId === "tab-numbers") loadCountries();
+      else if (tabId === "tab-orders") loadOrders();
+    }
+
+    function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add("active"); }
+    function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove("active"); }
+    function openNumberModal() { switchTab("tab-numbers"); }
+    function openChannelsModal() { openModal("modalChannels"); }
+    function openGeminiModal() { openModal("modalGemini"); }
+    function openTwoFuncModal() { openModal("modalTwoFunc"); }
+
+    function setupNetworkChips() {
+      const chips = document.querySelectorAll(".net-chip");
+      chips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          chips.forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          selectedNetwork = chip.getAttribute("data-service");
+          loadCountries();
+        });
+      });
+    }
+
+    async function loadCountries() {
+      const container = document.getElementById("countryList");
+      container.innerHTML = '<div class="loading-spinner">Narxlar hisoblanmoqda...</div>';
+      try {
+        const res = await fetch(`/api/numbers_prices?service=${selectedNetwork}`);
+        const data = await res.json();
+        if (data.ok) {
+          countriesData = data.countries;
+          renderCountries(countriesData);
+        } else {
+          container.innerHTML = '<div class="loading-spinner">Nomerlar topilmadi</div>';
+        }
+      } catch (e) { container.innerHTML = '<div class="loading-spinner">API ulanishida xatolik</div>'; }
+    }
+
+    function renderCountries(list) {
+      const container = document.getElementById("countryList");
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div class="loading-spinner">Hozirda bo\'sh nomerlar yo\'q</div>';
+        return;
+      }
+      let html = "";
+      list.forEach(c => {
+        if (c.price > 0) {
+          html += `
+            <div class="country-row" onclick="buyNumber('${selectedNetwork}', '${c.id}', ${c.price}, '${c.name}')">
+              <span class="country-title">${c.name}</span>
+              <span class="country-price">${c.price.toLocaleString()} so'm</span>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="country-row" style="opacity: 0.5; cursor: not-allowed;">
+              <span class="country-title">${c.name}</span>
+              <span class="country-out">Mavjud emas</span>
+            </div>
+          `;
+        }
+      });
+      container.innerHTML = html;
+    }
+
+    function filterCountries() {
+      const q = document.getElementById("countrySearch").value.toLowerCase();
+      renderCountries(countriesData.filter(c => c.name.toLowerCase().includes(q)));
+    }
+
+    async function buyNumber(service, countryId, price, countryName) {
+      if (currentUser.balance < price) {
+        showToast("🔴 Balansingiz yetarli emas!");
+        switchTab("tab-deposit");
+        return;
+      }
+      if (!confirm(`${countryName} uchun ${price.toLocaleString()} so'mga nomer olinsinmi?`)) return;
+      showToast("⏳ Nomer so'ralmoqda...");
+      try {
+        const res = await fetch("/api/buy_number", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: currentUser.id, service: service, country: countryId, price: price })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          currentUser.balance -= price;
+          updateBalanceUI();
+          showToast("✅ Nomer xarid qilindi!");
+          showActiveNumber(data.number_id, data.phone, price);
+        } else { showToast(`❌ ${data.message || "Xatolik"}`); }
+      } catch (e) { showToast("Tarmoq xatosi!"); }
+    }
+
+    function showActiveNumber(id, phone, price) {
+      activeNumberId = id;
+      const card = document.getElementById("activeNumberCard");
+      card.classList.remove("hidden");
+      document.getElementById("ancNumberText").innerText = phone;
+      document.getElementById("ancCodeText").innerText = "Kutilmoqda...";
+      card.scrollIntoView({ behavior: "smooth" });
+      if (activeNumberInterval) clearInterval(activeNumberInterval);
+      activeNumberInterval = setInterval(checkSmsCode, 4000);
+    }
+
+    async function checkSmsCode() {
+      if (!activeNumberId) return;
+      try {
+        const res = await fetch(`/api/check_sms?id=${activeNumberId}`);
+        const data = await res.json();
+        if (data.ok && data.code) {
+          document.getElementById("ancCodeText").innerText = data.code;
+          showToast("🎉 SMS KOD KELDI!");
+          if (activeNumberInterval) clearInterval(activeNumberInterval);
+        }
+      } catch (e) {}
+    }
+
+    async function cancelActiveNumber() {
+      if (!activeNumberId || !confirm("Raqam bekor qilinsinmi?")) return;
+      try {
+        const res = await fetch("/api/cancel_number", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: currentUser.id, id: activeNumberId })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast("✅ Nomer bekor qilindi!");
+          document.getElementById("activeNumberCard").classList.add("hidden");
+          if (activeNumberInterval) clearInterval(activeNumberInterval);
+          activeNumberId = null;
+        }
+      } catch (e) { showToast("Xatolik"); }
+    }
+
+    async function buyChannel(type) {
+      closeModal("modalChannels");
+      const p = type === "y1" ? storeData.p_y1 : storeData.p_y2;
+      const finalPrice = currentUser.skidka ? (p - 15000) : p;
+      if (currentUser.balance < finalPrice) {
+        showToast("🔴 Balansingiz yetarli emas!");
+        switchTab("tab-deposit");
+        return;
+      }
+      if (!confirm(`Kanal xarid qilinsinmi? Narxi: ${finalPrice.toLocaleString()} so'm`)) return;
+      showToast("⏳ Rasmiylashtirilmoqda...");
+      try {
+        const res = await fetch("/api/buy_channel", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: currentUser.id, type: type, price: finalPrice })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          currentUser.balance -= finalPrice;
+          updateBalanceUI();
+          if (data.account_data) alert(`✅ KANAL:\n\n${data.account_data}`);
+          else alert("✅ Buyurtma qabul qilindi! Admin bot orqali yuboradi.");
+          switchTab("tab-orders");
+        } else { showToast(data.message || "Xatolik"); }
+      } catch (e) { showToast("Server xatosi"); }
+    }
+
+    async function buyGemini() {
+      closeModal("modalGemini");
+      const p = storeData.p_gemini;
+      if (currentUser.balance < p) {
+        showToast("🔴 Balansingiz yetarli emas!");
+        switchTab("tab-deposit");
+        return;
+      }
+      if (!confirm(`Gemini obunasi (${p.toLocaleString()} so'm) xarid qilinsinmi?`)) return;
+      showToast("⏳ Buyurtma berilmoqda...");
+      try {
+        const res = await fetch("/api/buy_gemini", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: currentUser.id, price: p })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          currentUser.balance -= p;
+          updateBalanceUI();
+          alert("✅ Buyurtma adminga tushdi! Tez orada bot orqali havola olasiz.");
+          switchTab("tab-orders");
+        } else { showToast(data.message || "Xatolik"); }
+      } catch (e) { showToast("Server xatosi"); }
+    }
+
+    async function buyTwoFunc() {
+      const link = document.getElementById("twoFuncInput").value.trim();
+      if (!link) return alert("Kanal ma'lumotini yozing!");
+      closeModal("modalTwoFunc");
+      const p = storeData.p_2func;
+      if (currentUser.balance < p) {
+        showToast("🔴 Balansingiz yetarli emas!");
+        switchTab("tab-deposit");
+        return;
+      }
+      showToast("⏳ Yuborilmoqda...");
+      try {
+        const res = await fetch("/api/buy_twofunc", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: currentUser.id, price: p, info: link })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          currentUser.balance -= p;
+          updateBalanceUI();
+          alert("✅ Buyurtma qabul qilindi!");
+          switchTab("tab-orders");
+        } else { showToast(data.message || "Xatolik"); }
+      } catch (e) { showToast("Server xatosi"); }
+    }
+
+    function setDepAmount(val) { document.getElementById("depAmountInput").value = val; }
+    function copyCard() {
+      navigator.clipboard.writeText(document.getElementById("adminCardNumber").innerText.replace(/\s+/g, ""));
+      showToast("📋 Karta raqami nusxalandi!");
+    }
+    function copyRefLink() {
+      navigator.clipboard.writeText(document.getElementById("refLinkInput").value);
+      showToast("📋 Taklif havolasi nusxalandi!");
+    }
+
+    function previewReceipt(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById("uploadPlaceholder").classList.add("hidden");
+          const p = document.getElementById("uploadPreview");
+          p.classList.remove("hidden");
+          document.getElementById("previewImg").src = e.target.result;
+          document.getElementById("previewName").innerText = input.files[0].name;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    async function submitDeposit() {
+      const amt = parseInt(document.getElementById("depAmountInput").value);
+      const fileInput = document.getElementById("receiptFileInput");
+      if (!amt || amt < 1000) return alert("Minimal summa 1,000 so'm!");
+      if (!fileInput.files || fileInput.files.length === 0) return alert("Chek rasmini yuklang!");
+
+      const formData = new FormData();
+      formData.append("uid", currentUser.id);
+      formData.append("amount", amt);
+      formData.append("receipt", fileInput.files[0]);
+
+      const btn = document.getElementById("btnSubmitPayment");
+      btn.disabled = true;
+      btn.innerText = "⏳ Yuborilmoqda...";
+      try {
+        const res = await fetch("/api/deposit", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.ok) {
+          alert("✅ Chek qabul qilindi! Admin tez orada hisobingizga pul o'tkazadi.");
+          document.getElementById("depAmountInput").value = "";
+          document.getElementById("uploadPreview").classList.add("hidden");
+          document.getElementById("uploadPlaceholder").classList.remove("hidden");
+          fileInput.value = "";
+          switchTab("tab-orders");
+        } else { showToast(data.message || "Xatolik"); }
+      } catch (e) { showToast("Yuklashda xatolik!"); }
+      finally { btn.disabled = false; btn.innerText = "✅ To'lovni Yuborish"; }
+    }
+
+    async function loadOrders() {
+      const container = document.getElementById("ordersList");
+      container.innerHTML = '<div class="loading-spinner">Yuklanmoqda...</div>';
+      try {
+        const res = await fetch(`/api/my_orders?uid=${currentUser.id}`);
+        const data = await res.json();
+        if (data.ok && data.orders && data.orders.length > 0) {
+          let html = "";
+          data.orders.forEach(o => {
+            let statusBadge = `<span style="color:#f59e0b">⏳ ${o.status}</span>`;
+            if (o.status && o.status.includes("Bajarildi")) statusBadge = `<span style="color:#10b981">✅ Bajarildi</span>`;
+            html += `
+              <div class="order-card">
+                <div class="order-top">
+                  <span class="order-title">📦 ${o.oid || "Xizmat"}</span>
+                  <span class="order-date">${o.date || ""}</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">${o.link || ""}</div>
+                <div style="font-size: 11px;">Holat: ${statusBadge}</div>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        } else { container.innerHTML = '<div class="loading-spinner">Hozircha buyurtmalar yo\'q</div>'; }
+      } catch (e) { container.innerHTML = '<div class="loading-spinner">Yuklab bo\'lmadi</div>'; }
+    }
+
+    function openSupport() {
+      const admin = storeData.admin.replace("@", "");
+      if (tg) tg.openTelegramLink(`https://t.me/${admin}`);
+      else window.open(`https://t.me/${admin}`, "_blank");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 3000);
+    }
+  </script>
 </body>
 </html>
