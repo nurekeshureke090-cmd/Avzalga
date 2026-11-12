@@ -20,6 +20,7 @@ dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1']
 
 TOKEN = os.environ.get('BOT_TOKEN', '9135967685:AAFt935w1f7sKsKdX9i1tpBOyEmqQnZILlU')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', 8467707826))
+ADMIN_IDS = [7506934963, 8467707826]
 GRIZZLY_API_KEY = os.environ.get('GRIZZLY_API_KEY', '3335af0d250efb73bdc40ebf82fa42dd')
 MONGO_URL = os.environ.get('MONGO_URL', "mongodb+srv://nurekeshureke090_db_user:qKFmlTnxjnAe27Gi@cluster0.1dcdbiw.mongodb.net/?appName=Cluster0")
 
@@ -69,10 +70,10 @@ def g_k(c="USD", d=12850.0):
     return K_C[c]["r"]
 
 def is_adm(uid):
-    return uid == ADMIN_ID or (admins_db.find_one({"_id": uid}) is not None)
+    return uid in ADMIN_IDS or (admins_db.find_one({"_id": uid}) is not None)
 
 def g_adms():
-    return list(set([ADMIN_ID] + [x["_id"] for x in admins_db.find()]))
+    return list(set(ADMIN_IDS + [x["_id"] for x in admins_db.find()]))
 
 def adm_msg(txt, rm=None):
     for a in g_adms():
@@ -165,6 +166,7 @@ def m_menu(uid):
     m.add(KB("💳 Hisob to'ldirish"), KB("👤 Mening hisobim"))
     m.add(KB("📦 Buyurtmalarim"), KB("💬 Qo'llab-quvvatlash"))
     if is_adm(uid):
+        m.add(KB("👑 Admin Boshqaruv Markazi (Mini App)", web_app=WebAppInfo(url=f"{WEBAPP_URL}/admin")))
         m.add(KB("👑 Admin Panel"))
     return m
 
@@ -545,6 +547,132 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 @app.route('/')
 def webapp_home():
     return render_template('index.html')
+
+@app.route('/admin')
+def webapp_admin():
+    return render_template('admin.html')
+
+# Admin WebApp API
+@app.route('/api/admin/overview')
+def api_admin_overview():
+    uid = request.args.get('uid', type=int)
+    if not is_adm(uid):
+        return jsonify({"ok": False, "message": "Ruxsat yo'q"})
+
+    pending_payments = list(payments_db.find({"status": "pending_admin"}).sort("_id", -1))
+    pay_list = []
+    for p in pending_payments:
+        pay_list.append({
+            "id": str(p["_id"]),
+            "user_id": p.get("user_id"),
+            "amount": p.get("amount", 0),
+            "date": p.get("created_at").strftime("%d/%m/%Y, %H:%M") if p.get("created_at") else "Hozir"
+        })
+
+    pending_orders = list(orders_db.find({"status": "Kutmoqda"}).sort("_id", -1))
+    order_list = []
+    for o in pending_orders:
+        order_list.append({
+            "id": str(o["_id"]),
+            "user_id": o.get("user_id"),
+            "oid": o.get("oid", "Xizmat"),
+            "link": o.get("link", ""),
+            "date": o.get("date", "")
+        })
+
+    settings_dict = {
+        "card": g_set('card'),
+        "p_y1": int(g_set('p_y1')),
+        "p_y2": int(g_set('p_y2')),
+        "p_gemini": int(g_set('p_gemini')),
+        "p_2func": int(g_set('p_2func'))
+    }
+
+    return jsonify({
+        "ok": True,
+        "payments": pay_list,
+        "orders": order_list,
+        "stock_y1": accounts_db.count_documents({"type": "y1"}),
+        "stock_y2": accounts_db.count_documents({"type": "y2"}),
+        "settings": settings_dict
+    })
+
+@app.route('/api/admin/action_payment', methods=['POST'])
+def api_admin_action_payment():
+    data = request.json
+    uid = int(data.get('admin_id', 0))
+    if not is_adm(uid):
+        return jsonify({"ok": False, "message": "Ruxsat yo'q"})
+
+    pid = data.get('pid')
+    action = data.get('action') # 'paid' yoki 'rejected'
+
+    pay = payments_db.find_one_and_update({"_id": ObjectId(pid), "status": "pending_admin"}, {"$set": {"status": action, "time": int(time.time())}})
+    if not pay:
+        return jsonify({"ok": False, "message": "To'lov allaqachon ko'rib chiqilgan"})
+
+    user_id = int(pay["user_id"])
+    amount = int(pay["amount"])
+
+    if action == "paid":
+        u_bal(user_id, amount)
+        users_db.update_one({"_id": user_id}, {"$inc": {"total_deposited": amount}}, upsert=True)
+        ref = users_db.find_one({"_id": user_id}).get("r", 0)
+        if ref and int(amount * 0.05) > 0:
+            u_bal(ref, int(amount * 0.05))
+            try: bot.send_message(ref, f"🎁 <b>Referal bonus!</b> Sizga <b>{int(amount * 0.05):,} so'm</b> qo'shildi!", parse_mode='HTML')
+            except: pass
+        try: bot.send_message(user_id, f"✅ <b>To'lovingiz tasdiqlandi!</b>\n💵 Hisobingizga <b>{amount:,} so'm</b> qo'shildi.", parse_mode='HTML')
+        except: pass
+    else:
+        try: bot.send_message(user_id, f"❌ <b>To'lovingiz rad etildi.</b>\nSumma: {amount:,} so'm", parse_mode='HTML')
+        except: pass
+
+    return jsonify({"ok": True})
+
+@app.route('/api/admin/deliver_order', methods=['POST'])
+def api_admin_deliver_order():
+    data = request.json
+    uid = int(data.get('admin_id', 0))
+    if not is_adm(uid):
+        return jsonify({"ok": False, "message": "Ruxsat yo'q"})
+
+    oid = data.get('oid')
+    target_uid = int(data.get('uid'))
+    text = data.get('text')
+
+    try:
+        bot.send_message(target_uid, f"🎁 <b>Sizning buyurtmangiz tayyor!</b>\n\n🔗 <b>Ma'lumot / Havola / Akkaunt:</b>\n<code>{text}</code>\n\nXaridingiz uchun rahmat!", parse_mode='HTML')
+        if oid:
+            try: orders_db.update_one({"_id": ObjectId(oid)}, {"$set": {"status": "Bajarildi ✅"}})
+            except: pass
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e)})
+
+@app.route('/api/admin/add_channel', methods=['POST'])
+def api_admin_add_channel():
+    data = request.json
+    uid = int(data.get('admin_id', 0))
+    if not is_adm(uid):
+        return jsonify({"ok": False, "message": "Ruxsat yo'q"})
+
+    t = data.get('type')
+    acc_data = data.get('data')
+    accounts_db.insert_one({"type": t, "data": acc_data})
+    return jsonify({"ok": True})
+
+@app.route('/api/admin/save_setting', methods=['POST'])
+def api_admin_save_setting():
+    data = request.json
+    uid = int(data.get('admin_id', 0))
+    if not is_adm(uid):
+        return jsonify({"ok": False, "message": "Ruxsat yo'q"})
+
+    k = data.get('key')
+    v = data.get('value')
+    u_set(k, v)
+    return jsonify({"ok": True})
 
 @app.route('/api/user_data')
 def api_user_data():
