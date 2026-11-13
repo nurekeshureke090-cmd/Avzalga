@@ -9,7 +9,7 @@ from telebot.types import (
     InlineKeyboardMarkup as IK, InlineKeyboardButton as IB,
     WebAppInfo
 )
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 import dns.resolver
 from bson import ObjectId
@@ -19,19 +19,18 @@ dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1']
 
 TOKEN = os.environ.get('BOT_TOKEN', '9135967685:AAFt935w1f7sKsKdX9i1tpBOyEmqQnZILlU')
-ADMIN_ID = int(os.environ.get('ADMIN_ID', 8467707826))
 ADMIN_IDS = [7506934963, 8467707826]
 GRIZZLY_API_KEY = os.environ.get('GRIZZLY_API_KEY', '3335af0d250efb73bdc40ebf82fa42dd')
 MONGO_URL = os.environ.get('MONGO_URL', "mongodb+srv://nurekeshureke090_db_user:qKFmlTnxjnAe27Gi@cluster0.1dcdbiw.mongodb.net/?appName=Cluster0")
 
-# Mini App manzili (Ngrok yoki VPS domenini kiritish mumkin, masalan: https://mydomain.com)
-WEBAPP_URL = os.environ.get('WEBAPP_URL', 'http://127.0.0.1:8080')
+# Vercel havolasi
+WEBAPP_URL = os.environ.get('WEBAPP_URL', 'https://avzalga.vercel.app')
 
-bot = telebot.TeleBot(TOKEN, num_threads=50)
+bot = telebot.TeleBot(TOKEN, threaded=False)
 usr_st = {}
 
 # MongoDB ulanishi
-cluster = MongoClient(MONGO_URL, maxPoolSize=100)
+cluster = MongoClient(MONGO_URL, maxPoolSize=50)
 db = cluster["PROSmmMarket"]
 users_db = db["users"]
 orders_db = db["orders"]
@@ -143,7 +142,7 @@ def req_gz_number(sc, cid):
         elif "NO_NUMBERS" in body:
             return {"s": False, "m": "Hozirda bu davlatda bo'sh nomer qolmagan"}
         elif "NO_BALANCE" in body:
-            return {"s": False, "m": "Texnik xatolik, iltimos keyinroq urinib ko'ring"}
+            return {"s": False, "m": "Texnik xatolik, keyinroq urinib ko'ring"}
         return {"s": False, "m": body}
     except Exception as e:
         return {"s": False, "m": str(e)}
@@ -215,17 +214,17 @@ def handle_start(m):
             IB("➕ Kanalga a'zo bo'lish", url=f"https://t.me/{ch}"),
             IB("🔄 Tekshirish", callback_data="ck_sub")
         )
-        return bot.send_message(m.chat.id, f"⚠ <b>Botdan to'liq foydalanish uchun kanalimizga a'zo bo'ling:</b>\n@{ch}", reply_markup=mk, parse_mode='HTML')
+        return bot.send_message(m.chat.id, f"⚠ <b>Botdan foydalanish uchun kanalimizga a'zo bo'ling:</b>\n@{ch}", reply_markup=mk, parse_mode='HTML')
 
     txt = f"""
 👋 <b>Assalomu alaykum, {m.from_user.first_name}!</b>
 
 🏪 <b>Xush kelibsiz!</b>
 Bu yerda siz:
-• 📱 <b>Virtual Nomerlar</b> (20+ davlatlar)
+• 📱 <b>Virtual Nomerlar</b> (Telegram, WhatsApp va h.k.)
 • 🔴 <b>Tayyor YouTube Kanallar</b> (2006-2019)
 • ✨ <b>Gemini Advanced Obunasi</b>
-• 🛠 <b>YouTube 2-funksiya ulanishi</b>
+• 🛠 <b>Kanal Ochib Berish Xizmati</b>
 
 👇 Barcha xizmatlarni qulay va zamonaviy <b>Mini App</b> orqali xarid qilishingiz mumkin:
 """
@@ -453,7 +452,7 @@ def handle_admin_actions(m):
             IB(f"2006-09: {g_set('p_y1')} so'm", callback_data="edp_p_y1"),
             IB(f"2010-19: {g_set('p_y2')} so'm", callback_data="edp_p_y2"),
             IB(f"Gemini: {g_set('p_gemini')} so'm", callback_data="edp_p_gemini"),
-            IB(f"2-funksiya: {g_set('p_2func')} so'm", callback_data="edp_p_2func")
+            IB(f"Kanal ochish: {g_set('p_2func')} so'm", callback_data="edp_p_2func")
         )
         bot.send_message(m.chat.id, "⚙️ Qaysi xizmat narxini o'zgartirasiz?", reply_markup=mk)
     elif "Admin qo'shish" in m.text:
@@ -531,7 +530,7 @@ def handle_fw_order(m):
     usr_st[m.from_user.id] = None
 
     try:
-        bot.send_message(uid, f"🎁 <b>Sizning buyurtmangiz tayyor!</b>\n\n🔗 <b>Havola / Ma'lumot:</b>\n{m.text}\n\n<i>Obunani o'z akkauntingizga oformit qilishingiz mumkin.</i>", parse_mode='HTML')
+        bot.send_message(uid, f"🎁 <b>Sizning buyurtmangiz tayyor!</b>\n\n🔗 <b>Havola / Ma'lumot:</b>\n{m.text}\n\nXaridingiz uchun rahmat!", parse_mode='HTML')
         bot.send_message(m.chat.id, "✅ Mijozga yuborildi!")
         if oid:
             try: orders_db.update_one({"_id": ObjectId(oid)}, {"$set": {"status": "Bajarildi ✅"}})
@@ -543,6 +542,27 @@ def handle_fw_order(m):
 
 # ==================== FLASK BACKEND & WEBAPP API ====================
 app = Flask(__name__, template_folder='templates', static_folder='static')
+
+# Telegram Webhook qabul qiluvchi endpoint (Vercel uchun)
+@app.route('/webhook', methods=['POST'])
+def telegram_webhook():
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return '', 200
+    return 'Forbidden', 403
+
+# Webhook sozlash (brauzerda 1 marta ochish kerak)
+@app.route('/set_webhook')
+def set_webhook_route():
+    webhook_url = f"{WEBAPP_URL}/webhook"
+    bot.remove_webhook()
+    time.sleep(0.5)
+    success = bot.set_webhook(url=webhook_url)
+    if success:
+        return f"<h1>✅ Webhook muvaffaqiyatli ulandi!</h1><p>{webhook_url}</p>", 200
+    return "<h1>❌ Webhook ulanmadi</h1>", 500
 
 @app.route('/')
 def webapp_home():
@@ -605,7 +625,7 @@ def api_admin_action_payment():
         return jsonify({"ok": False, "message": "Ruxsat yo'q"})
 
     pid = data.get('pid')
-    action = data.get('action') # 'paid' yoki 'rejected'
+    action = data.get('action')
 
     pay = payments_db.find_one_and_update({"_id": ObjectId(pid), "status": "pending_admin"}, {"$set": {"status": action, "time": int(time.time())}})
     if not pay:
@@ -694,7 +714,7 @@ def api_user_data():
         "p_gemini": int(g_set('p_gemini')),
         "stock_y1": accounts_db.count_documents({"type": "y1"}),
         "stock_y2": accounts_db.count_documents({"type": "y2"}),
-        "bot_username": bot.get_me().username
+        "bot_username": "prosmmmarket_bot"
     }
 
     return jsonify({
@@ -773,14 +793,7 @@ def api_cancel_number():
     try:
         url = "https://api.grizzlysms.com/stubs/handler_api.php"
         r = requests.get(url, params={"api_key": GRIZZLY_API_KEY, "action": "setStatus", "status": 8, "id": nid}, timeout=10)
-        body = r.text.strip()
-        # Nomer narxini buyurtmadan topish
-        order = orders_db.find_one({"link": {"$regex": str(nid)}})
-        refund_amount = 0
-        if order:
-            orders_db.update_one({"_id": order["_id"]}, {"$set": {"status": "Bekor qilindi"}})
-
-        return jsonify({"ok": True, "message": "Nomer bekor qilindi", "refund_amount": refund_amount})
+        return jsonify({"ok": True, "message": "Nomer bekor qilindi"})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e)})
 
@@ -861,14 +874,14 @@ def api_buy_twofunc():
     u_bal(uid, -price)
     r = orders_db.insert_one({
         "user_id": uid,
-        "oid": "2-Funksiya Ulanish",
+        "oid": "Kanal Ochib Berish",
         "link": info,
         "quantity": 1,
         "date": datetime.now().strftime("%Y.%m.%d %H:%M"),
         "status": "Kutmoqda"
     })
     adm_msg(
-        f"🔔 <b>YANGI 2-FUNKSIYA BUYURTMASI:</b>\n👤 User: <code>{uid}</code>\n📝 Ma'lumot: {info}",
+        f"🔔 <b>YANGI KANAL OCHISH BUYURTMASI:</b>\n👤 User: <code>{uid}</code>\n📝 Istak: {info}",
         rm=IK().add(IB("📤 Natijani yuborish", callback_data=f"snd_{uid}_{str(r.inserted_id)}"))
     )
     return jsonify({"ok": True})
@@ -882,7 +895,6 @@ def api_deposit():
     if not uid or amount < 1000 or not file:
         return jsonify({"ok": False, "message": "Ma'lumotlar to'liq emas!"})
 
-    # Rasmni bot orqali adminga uzatish
     file_bytes = file.read()
     r = payments_db.insert_one({
         "user_id": uid,
@@ -922,20 +934,7 @@ def api_my_orders():
         })
     return jsonify({"ok": True, "orders": res})
 
-# Web serverni ishga tushirish
-def run_web():
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port, debug=False)
-
+# Lokal test uchun
 if __name__ == '__main__':
-    threading.Thread(target=run_web, daemon=True).start()
-    print("🚀 Flask WebApp va Telegram Bot ishga tushdi...")
-    try: bot.remove_webhook()
-    except: pass
-    time.sleep(1)
-    while True:
-        try:
-            bot.polling(none_stop=True, interval=0, timeout=20)
-        except Exception as e:
-            print(f"Xatolik: {e}")
-            time.sleep(4)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port, debug=True)
