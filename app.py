@@ -18,14 +18,14 @@ from bson import ObjectId
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers = ['8.8.8.8', '1.1.1.1']
 
-TOKEN = os.environ.get('BOT_TOKEN',
-                       '9135967685:AAFt935w1f7sKsKdX9i1tpBOyEmqQnZILlU')
+# YANGI BOT TOKENI
+TOKEN = '9135967685:AAFt935w1f7sKsKdX9i1tpBOyEmqQnZILlU'
 ADMIN_IDS = [7506934963, 8467707826]
-GRIZZLY_API_KEY = os.environ.get('GRIZZLY_API_KEY', '3335af0d250efb73bdc40ebf82fa42dd')
-MONGO_URL = os.environ.get('MONGO_URL', "mongodb+srv://nurekeshureke090_db_user:qKFmlTnxjnAe27Gi@cluster0.1dcdbiw.mongodb.net/?appName=Cluster0")
+GRIZZLY_API_KEY = '3335af0d250efb73bdc40ebf82fa42dd'
+MONGO_URL = "mongodb+srv://nurekeshureke090_db_user:qKFmlTnxjnAe27Gi@cluster0.1dcdbiw.mongodb.net/?appName=Cluster0"
 
-# Vercel havolasi
-WEBAPP_URL = os.environ.get('WEBAPP_URL', 'https://avzalga.vercel.app')
+# Vercel sayt havolasi
+WEBAPP_URL = 'https://avzalga.vercel.app'
 
 bot = telebot.TeleBot(TOKEN, threaded=False)
 usr_st = {}
@@ -249,7 +249,6 @@ def handle_home(m):
 @bot.message_handler(func=lambda m: "Mening hisobim" in m.text)
 def handle_profile(m):
     bal = g_bal(m.from_user.id)
-    bot_info = bot.get_me()
     txt = f"""
 👤 <b>Shaxsiy Kabinetingiz</b>
 ━━━━━━━━━━━━━━━━━━━━
@@ -258,7 +257,7 @@ def handle_profile(m):
 
 🎁 <b>Referal dasturi:</b>
 Do'stlaringizga havola yuboring va ularning to'lovidan <b>5%</b> bonus oling!
-🔗 <code>https://t.me/{bot_info.username}?start={m.from_user.id}</code>
+🔗 <code>https://t.me/avzalga_bot?start={m.from_user.id}</code>
 """
     mk = IK(row_width=1).add(
         IB("🚀 Mini App orqali ochish", web_app=WebAppInfo(url=WEBAPP_URL)),
@@ -279,7 +278,7 @@ def handle_deposit(m):
 
 @bot.message_handler(func=lambda m: usr_st.get(m.from_user.id) == 'manual_amount')
 def handle_amount_input(m):
-    if m.text in ["🚀 Do'konni ochish (Mini App)", "💳 Hisob to'ldirish", "👤 Mening hisobim", "📦 Buyurtmalarim", "💬 Qo'llab-quvvatlash", "👑 Admin Panel"]:
+    if m.text in ["🚀 Do'konni ochish (Mini App)", "💳 Hisob to'ldirish", "👤 Mening hisobim", "📦 Buyurtmalarim", "💬 Qo'llab-quvvatlash", "👑 Admin Panel", "👑 Admin Boshqaruv Markazi (Mini App)"]:
         usr_st[m.from_user.id] = None
         return
 
@@ -715,7 +714,7 @@ def api_user_data():
         "p_gemini": int(g_set('p_gemini')),
         "stock_y1": accounts_db.count_documents({"type": "y1"}),
         "stock_y2": accounts_db.count_documents({"type": "y2"}),
-        "bot_username": "prosmmmarket_bot"
+        "bot_username": "avzalga_bot"
     }
 
     return jsonify({
@@ -935,7 +934,6 @@ def api_my_orders():
         })
     return jsonify({"ok": True, "orders": res})
 
-# Lokal test uchun
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port, debug=True)
